@@ -273,12 +273,18 @@
       case 'orbit': return { dist: hoch ? 125 : 105, lookY: -z.bohrtiefe + (quer ? 8 : 22), yaw: 1.7 + 1.2 * t, pitch: .2 };
       // 05 Planung: gerade Seitenansicht wie eine Planzeichnung, dazu ein Massstab (massstab())
       case 'plan': return { dist: hoch ? 165 : 140, lookY: -z.bohrtiefe + (quer ? 10 : 30), yaw: .02, pitch: 0 };
-      // 06 Haltung: von unten am Gestänge entlang – lotrecht bis zum Fluchtpunkt
-      case 'lot': return { dist: hoch ? 21 : 15, lookY: -z.meissel + 2.5, yaw: 2.6 + .35 * t, pitch: -1.12 };
-      // 500 m: Rückzoom auf die ganze Bohrung (steht über der Zeile unten, siehe kamerafahrt())
-      case 'endtiefe': return { dist: ovDist * 1.05, lookY: -ENDTIEFE * .5, yaw: .5 + .12 * t, pitch: .1 };
-      // Gestänge zurück: seitlich, das Gestänge fährt nach oben
-      case 'rueckbau': return { dist: ovDist * 1.02, lookY: -ENDTIEFE * .5, yaw: .72 + .1 * t, pitch: .14 };
+      // 06 Haltung: erhöhte Weitsicht – von der Landschaft lotrecht hinunter bis zum Bohrkopf, daneben ein Lot (lotlinie())
+      case 'lot': {
+        const d = (z.bohrtiefe + 110) / (2 * Math.tan(FOV / 2)) * (hoch ? 1.65 : 1.12), y = -z.bohrtiefe * .5 + 20;
+        return { dist: d, lookY: y, yaw: .3 + .22 * t, pitch: Math.asin(clamp((80 - y) / d, 0, .7)) };
+      }
+      // 500 m: nah an der Krone, die eben zum Stehen kommt
+      case 'endtiefe': return { dist: hoch ? 30 : 22, lookY: -ENDTIEFE + 3, yaw: 1.05 + .3 * t, pitch: .14 };
+      // Gestänge zurück: erhöhte Gesamtansicht, die Landschaft liegt obenauf, das Gestänge fährt nach oben
+      case 'rueckbau': {
+        const d = ovDist * 1.02, y = -ENDTIEFE * .5;
+        return { dist: d, lookY: y, yaw: .72 + .1 * t, pitch: Math.asin(clamp((80 - y) / d, 0, .7)) };
+      }
       // 07 Sonde: mit dem Sondenfuss in die Tiefe
       case 'sonde': return { dist: 34, lookY: -z.sonde + 5, yaw: -.55 + .45 * t, pitch: .3 };
       // 08 Hinterfüllung: mit dem Verpressspiegel nach oben
@@ -1152,7 +1158,8 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.fillRect(meisselBild.x - r, meisselBild.y - r, 2 * r, 2 * r);
   }
 
-  function beschriftung(ov) {
+  // namen: Anteil der Schichtnamen (bei Station 06 stehen sie sonst im Text rechts)
+  function beschriftung(ov, namen = 1) {
     if (ov < 0.05) return;
     ctx.globalCompositeOperation = 'source-over';
     ctx.font = '500 9px Arial, Helvetica, sans-serif';
@@ -1166,7 +1173,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       const q = projiziere(BX, -(oben + unten) / 2, -BZ);
       if (!q) continue;
       const text = SCHICHTEN[i].name.toUpperCase();
-      ctx.strokeStyle = ctx.fillStyle = `rgba(170,205,176,${(0.6 * ov).toFixed(3)})`;
+      ctx.strokeStyle = ctx.fillStyle = `rgba(170,205,176,${(0.6 * ov * namen).toFixed(3)})`;
       ctx.beginPath(); ctx.moveTo(q.x + 4, q.y); ctx.lineTo(q.x + 14, q.y); ctx.stroke();
       // Passt der Name nicht mehr rechts daneben, steht er rechtsbündig über der Marke
       if (q.x + 20 + ctx.measureText(text).width > W - 8) {
@@ -1187,6 +1194,17 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       ctx.fillText(`${d} M`, q.x - 18, q.y);
     }
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  }
+
+  // Haltung: ein Lot neben der Bohrung, von einer Aufhängung über dem Gelände bis auf die Tiefe des Bohrkopfs
+  const LOT_X = 14;
+  function lotlinie(a, z) {
+    if (a < 0.02 || z.meissel < 1) return;
+    const oben = 16, unten = -z.meissel;
+    linie('raster', 0.8 * a, LOT_X - 3, oben, 0, LOT_X + 3, oben, 0);
+    for (let y = oben; y > unten + 4; y -= 8) linie('raster', 0.6 * a, LOT_X, y, 0, LOT_X, Math.max(unten + 4, y - 5), 0);
+    // Senkblei
+    zug('raster', 0.95 * a, [LOT_X, unten + 4, 0, LOT_X + 1.6, unten + 1.6, 0, LOT_X, unten - 1.5, 0, LOT_X - 1.6, unten + 1.6, 0], true);
   }
 
   // Planung: Massstab neben der Bohrung, alle 10 m ein Strich, alle 50 m ein längerer
@@ -1217,9 +1235,10 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   }
 
-  function bohrgeraet(sicht) {
-    if (!RIG || sicht < 0.02) return;
-    const { welt, kanten, sx, sy, sz, buendel } = RIG, n = sz.length;
+  // Projektion des Geräts einmal je Bild (zeichnen() ruft sie vor der Landschaft auf, die das Gerät freistellt)
+  function geraetProjizieren() {
+    if (!RIG) return;
+    const { welt, sx, sy, sz } = RIG, n = sz.length;
     let zMin = Infinity, zMax = -Infinity;
     for (let i = 0; i < n; i++) {
       const dx = welt[3 * i] - K.px, dy = welt[3 * i + 1] - K.py, dz = welt[3 * i + 2] - K.pz;
@@ -1231,7 +1250,13 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       if (cz < zMin) zMin = cz;
       if (cz > zMax) zMax = cz;
     }
-    if (zMax < NAH) return;
+    RIG.zMin = zMin; RIG.zMax = zMax;
+  }
+
+  function bohrgeraet(sicht) {
+    if (!RIG || sicht < 0.02) return;
+    const { kanten, sx, sy, sz, buendel } = RIG, zMin = RIG.zMin, zMax = RIG.zMax;
+    if (!(zMax >= NAH)) return;
     const a = sicht * nebel((zMin + zMax) / 2), tiefe = 3.999 / Math.max(zMax - zMin, 1e-6);
     if (a < 0.02) return;
     for (let k = 0; k < kanten.length; k += 3) {
@@ -1306,10 +1331,12 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       return (raster[o] * (1 - fx) + raster[o + 1] * fx) * (1 - fy) + (raster[o + N] * (1 - fx) + raster[o + N + 1] * fx) * fy;
     };
   })();
-  // Die Linien laufen immer quer zum aktuellen Blick (wie bei infradot): 38 Reihen 40 … 299 m hinter dem Gerät.
-  // Beim Drehen werden sie neu abgetastet, das Gelände selbst bleibt stehen.
-  const RELIEF = Array.from({ length: 38 }, (_, i) => ({
-    d: 40 + i * 7, pts: new Float64Array(RELIEF_PUNKTE * 3), deckung: new Float32Array(RELIEF_PUNKTE), schnee: new Float32Array(RELIEF_PUNKTE),
+  // Die Linien laufen immer quer zum aktuellen Blick (wie bei infradot): 48 Reihen von 35 m vor bis 294 m hinter dem
+  // Gerät. Beim Drehen werden sie neu abgetastet, das Gelände selbst bleibt stehen.
+  // claude/v006-stationen: Auch der flache Boden rund um das Gerät trägt zarte Linien – die Landschaft reicht so bis
+  // an den Bohrpunkt, das Gerät steht darauf, und die Bohrung beginnt im selben Gelände.
+  const RELIEF = Array.from({ length: 48 }, (_, i) => ({
+    d: -35 + i * 7, pts: new Float64Array(RELIEF_PUNKTE * 3), deckung: new Float32Array(RELIEF_PUNKTE), schnee: new Float32Array(RELIEF_PUNKTE),
   }));
   let reliefRichtung = NaN;
   function reliefAbtasten(th) {
@@ -1320,7 +1347,8 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
         const u = -300 + k * 4, y = reliefHoehe(u * cw - d * sw, u * sw + d * cw);
         P[3 * k] = u * cs - d * sn; P[3 * k + 1] = y; P[3 * k + 2] = -u * sn - d * cs;
         r.schnee[k] = smooth(range(y, 16, 40));
-        r.deckung[k] = smooth(range(y, 2.5, 9)) * (0.28 + 0.5 * r.schnee[k]);
+        const boden = 0.15 * (1 - smooth(range(Math.hypot(u, d * 1.3), 20, 250)));
+        r.deckung[k] = Math.max(boden, smooth(range(y, 2.5, 9)) * (0.28 + 0.5 * r.schnee[k]));
       }
     }
   }
@@ -1346,18 +1374,18 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     return r;
   }
 
+  // claude/v006-stationen: Die Landschaft bleibt sichtbar, solange die Kamera über dem Gelände steht – im Hero, beim
+  // Eintauchen, bei Station 01, in den erhöhten Gesamtansichten und am Schluss. Taucht die Kamera unter die
+  // Oberfläche, blendet sie aus. Gezeichnet wird sie unter der Szene, Bohrung und Gestänge liegen darüber.
   function landschaft(p) {
-    const a = 1 - smooth(range(p, 0.003, 0.018));
+    const a = smooth(range(K.py, 3, 16));
     if (a < 0.01 || !RIG) return;
-    const fuss = projiziere(0, 0, 0), kopf = projiziere(0, RIG.hoehe, 0);
-    if (!fuss || !kopf || fuss.y - kopf.y < 40) return;
-    const h = fuss.y - kopf.y, T = textRahmen || (textRahmen = textMessen());
-    // Neu zeichnen nur, wenn sich Ansicht, Grösse oder Text verschoben haben; sonst das fertige Bild übernehmen.
-    // Beim Ausblenden (Scrollen) bleibt das Bild stehen, ausser der Besucher dreht das Gerät noch.
-    const schluessel = [fuss.x, fuss.y, h, K.rx, K.ux, K.uy, canvas.width, canvas.height, T.x1, T.y0, T.y1].map(v => v.toFixed(3)).join('|');
-    const nutzer = `${NUTZER.yaw}|${NUTZER.pitch}|${NUTZER.zoom}`;
-    if (schluessel !== landSchluessel && (p < 0.003 || !landSchluessel || nutzer !== landNutzer)) {
-      landSchluessel = schluessel; landNutzer = nutzer;
+    const mitText = p < 0.035;   // den Hero-Text nur freistellen, solange er zu sehen ist
+    const T = mitText ? textRahmen || (textRahmen = textMessen()) : null;
+    // Neu zeichnen nur, wenn sich Kamera, Grösse oder Text geändert haben; sonst das fertige Bild übernehmen
+    const schluessel = [K.px, K.py, K.pz, K.fx, K.fy, K.fz, K.f, K.cx, K.cy, canvas.width, canvas.height, T ? T.x1 : -1, T ? T.y0 : -1, T ? T.y1 : -1].map(v => v.toFixed(2)).join('|');
+    if (schluessel !== landSchluessel) {
+      landSchluessel = schluessel;
       landZeichnen(T);
     }
     ctx.globalCompositeOperation = 'source-over';
@@ -1366,7 +1394,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.globalAlpha = 1;
   }
 
-  let landSchluessel = '', landNutzer = '';
+  let landSchluessel = '';
   function landZeichnen(T) {
     if (landBild.width !== canvas.width || landBild.height !== canvas.height) {
       landBild.width = canvas.width; landBild.height = canvas.height;
@@ -1430,12 +1458,13 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     L.lineCap = 'square';
     L.beginPath();
     const { sx, sy, sz, kanten } = RIG;
-    for (let k = 0; k < kanten.length; k += 3) {
+    for (let k = 0; k < kanten.length && RIG.zMax >= NAH; k += 3) {
       const i = kanten[k], j = kanten[k + 1];
       if (sz[i] < NAH || sz[j] < NAH) continue;
       L.moveTo(sx[i], sy[i]); L.lineTo(sx[j], sy[j]);
     }
     L.stroke();
+    if (!T) return;
     const M = textMaske(T);
     L.setTransform(1, 0, 0, 1, 0, 0);
     L.drawImage(M.bild, 0, Math.round(M.y0 * DPR));
@@ -1467,6 +1496,8 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     const endBg = FARBEN ? [24, 16, 11] : [7, 27, 21];
     ctx.fillStyle = end > 0 ? `rgb(${mischeFarbe(endBg, [7, 27, 21], end).join(",")})` : hintergrund;
     ctx.fillRect(0, 0, W, H);
+    geraetProjizieren();
+    if (ansicht === '3d') landschaft(p);
     // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
     // er erscheint, sobald die Kamera der Spindel nach unten folgt.
     ctx.globalAlpha = smooth(range(p, 0.008, 0.06)) * (1 - end);
@@ -1484,6 +1515,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     gestaenge(z);
     waerme(z);
     if (!REDUZIERT) massstab(gewicht.plan || 0);
+    if (!REDUZIERT) lotlinie(gewicht.lot || 0, z);
     ausgeben();
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
@@ -1491,12 +1523,11 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ausgeben();
     gluehenMeissel();
     // Bei reduzierter Bewegung bleibt die Kamera in der Gesamtansicht: Beschriftung tritt hinter die Stationen zurück
-    beschriftung(ov * smooth(range(p, 0.005, 0.06)) * (1 - end) * (REDUZIERT ? 1 - stationsAnteil(p) : 1));
+    beschriftung(ov * smooth(range(p, 0.005, 0.06)) * (1 - end) * (REDUZIERT ? 1 - stationsAnteil(p) : 1), 1 - (gewicht.lot || 0));
     if (!REDUZIERT) massstabText((gewicht.plan || 0) * (1 - end));
     // Nah an der Bohrung tritt das Gerät etwas zurück, damit die Texte lesbar bleiben
     // Bildkonturen / Original ersetzen das Gerät in der Geräteansicht
     if (ansicht === '3d') bohrgeraet(lerp(lerp(1, 0.6, smooth(range(p, 0.04, 0.1))), 1, end));
-    landschaft(p);   // nach dem Gerät: braucht dessen projizierte Striche zum Freistellen
   }
 
   // ---------- HUD und Texte ----------
