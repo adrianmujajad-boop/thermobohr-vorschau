@@ -1387,24 +1387,36 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   // claude/v006-stationen: Die Landschaft bleibt sichtbar, solange die Kamera über dem Gelände steht – im Hero, beim
   // Eintauchen, bei Station 01, in den erhöhten Gesamtansichten und am Schluss. Taucht die Kamera unter die
   // Oberfläche, blendet sie aus. Gezeichnet wird sie unter der Szene, Bohrung und Gestänge liegen darüber.
-  function landschaft(p) {
+  // grund: Farbe des Bühnenhintergrunds in diesem Bild (zum Verdecken beim direkten Zeichnen)
+  // Steht die Kamera still (Hero, Schluss, beim Lesen), wird ein Zwischenbild mit sauber freigestelltem Gerät und
+  // Text einmal gezeichnet und wiederverwendet. Bewegt sie sich, wird direkt auf die Bühne gezeichnet, ohne das
+  // Freistellen um das Gerät: Ein Zwischenbild müsste sonst in jedem Bild neu übertragen und die breiten Ränder um
+  // tausende Gerätestriche neu gerastert werden – beides kostet ein Vielfaches des eigentlichen Zeichnens.
+  let landSchluessel = '', landBildSchluessel = '', ruhig = 0;
+  function landschaft(p, grund) {
     const a = smooth(range(K.py, 3, 16));
     if (a < 0.01 || !RIG) return;
-    const mitText = p < 0.035;   // den Hero-Text nur freistellen, solange er zu sehen ist
-    const T = mitText ? textRahmen || (textRahmen = textMessen()) : null;
-    // Neu zeichnen nur, wenn sich Kamera, Grösse oder Text geändert haben; sonst das fertige Bild übernehmen
+    const T = p < 0.035 ? textRahmen || (textRahmen = textMessen()) : null;   // Hero-Text, solange er zu sehen ist
     const schluessel = [K.px, K.py, K.pz, K.fx, K.fy, K.fz, K.f, K.cx, K.cy, canvas.width, canvas.height, T ? T.x1 : -1, T ? T.y0 : -1, T ? T.y1 : -1].map(v => v.toFixed(2)).join('|');
-    if (schluessel !== landSchluessel) {
-      landSchluessel = schluessel;
-      landZeichnen(T);
-    }
+    if (schluessel === landSchluessel) ruhig++; else { landSchluessel = schluessel; ruhig = 0; }
+    ctx.save();
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = a;
-    ctx.drawImage(landBild, 0, 0, W, H);
-    ctx.globalAlpha = 1;
+    if (ruhig >= 2) {
+      if (landBildSchluessel !== schluessel) { landBildSchluessel = schluessel; landZeichnen(T); }
+      ctx.drawImage(landBild, 0, 0, W, H);
+    } else {
+      if (T) {   // den Hero-Text aussparen (hart, er blendet ohnehin gerade aus)
+        ctx.beginPath();
+        ctx.rect(0, 0, W, H);
+        ctx.rect(T.x0 - 30, T.y0 - 30, T.x1 - T.x0 + 70, T.y1 - T.y0 + 60);
+        ctx.clip('evenodd');
+      }
+      reliefZeichnen(ctx, grund, false);
+    }
+    ctx.restore();
   }
 
-  let landSchluessel = '';
   function landZeichnen(T) {
     if (landBild.width !== canvas.width || landBild.height !== canvas.height) {
       landBild.width = canvas.width; landBild.height = canvas.height;
@@ -1414,6 +1426,19 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     L.globalCompositeOperation = 'source-over';
     L.clearRect(0, 0, landBild.width, landBild.height);
     L.setTransform(DPR, 0, 0, DPR, 0, 0);
+    reliefZeichnen(L, null, true);
+    if (!T) return;
+    // dazu weich der Hero-Text: die Maske radiert aus
+    const M = textMaske(T);
+    L.setTransform(1, 0, 0, 1, 0, 0);
+    L.globalCompositeOperation = 'destination-out';
+    L.drawImage(M.bild, 0, Math.round(M.y0 * DPR));
+    L.globalCompositeOperation = 'source-over';
+  }
+
+  // Zeichnet die Reihen von hinten nach vorne und stellt (freistellen) das Gerät frei. grund = null: auf das
+  // Zwischenbild, Verdecktes wird ausradiert; sonst direkt auf die Bühne, Verdecktes wird mit grund übermalt.
+  function reliefZeichnen(L, grund, freistellen) {
     L.lineJoin = L.lineCap = 'round';
     L.lineWidth = 1;
     const th = Math.atan2(K.px, K.pz);   // aktuelle Blickrichtung (Kamera kreist um das Gerät)
@@ -1424,7 +1449,9 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       X[k] = K.cx + (dx * K.rx + dz * K.rz) * K.f / cz;
       Y[k] = K.cy - (dx * K.ux + dy * K.uy + dz * K.uz) * K.f / cz;
     };
-    for (let i = RELIEF.length - 1; i >= 0; i--) {   // von hinten nach vorne
+    // von hinten nach vorne; aus der Ferne (Gesamtansichten) liegen die Reihen dichter als ein Pixel: jede zweite genügt
+    const schritt = K.dist > 300 ? 2 : 1;
+    for (let i = RELIEF.length - 1; i >= 0; i -= schritt) {
       const r = RELIEF[i], n = RELIEF_PUNKTE, P = r.pts;
       let erst = -1, letzt = -1;
       for (let k = 0; k < n; k++) {
@@ -1434,7 +1461,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       }
       if (erst < 0) continue;
       // Verdecken: der Hang dieser Linie (zwischen Linie und Fuss) löscht weiter hinten gezeichnete Linien
-      L.globalCompositeOperation = 'destination-out';
+      if (grund) L.fillStyle = grund; else L.globalCompositeOperation = 'destination-out';
       L.beginPath();
       for (let k = erst; k <= letzt; k++) if (RY[k] === RY[k]) L.lineTo(RX[k], RY[k]);
       for (let k = letzt; k >= erst; k--) if (FY[k] === FY[k]) L.lineTo(FX[k], FY[k] + 1);
@@ -1461,9 +1488,12 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
         }
       }
     }
-    // Freistellen: ein schmaler Rand um jeden Strich des Geräts (eckige Enden sind deutlich billiger als runde),
-    // dazu weich der Hero-Text
-    L.globalCompositeOperation = 'destination-out';
+    // Freistellen: ein schmaler Rand um jeden Strich des Geräts (eckige Enden sind deutlich billiger als runde).
+    // Nur wenn das Gerät gross im Bild steht: klein (Gesamtansichten) überlagern sich sonst tausende breite Striche
+    // auf wenigen Pixeln, das Rastern wird sehr teuer, und zu sehen wäre der Rand ohnehin nicht.
+    const fuss = projiziere(0, 0, 0), kopf = projiziere(0, RIG.hoehe, 0);
+    if (!freistellen || !fuss || !kopf || fuss.y - kopf.y < 150) { L.globalCompositeOperation = 'source-over'; return; }
+    if (grund) L.strokeStyle = grund; else L.globalCompositeOperation = 'destination-out';
     L.lineWidth = 9;
     L.lineCap = 'square';
     L.beginPath();
@@ -1474,10 +1504,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       L.moveTo(sx[i], sy[i]); L.lineTo(sx[j], sy[j]);
     }
     L.stroke();
-    if (!T) return;
-    const M = textMaske(T);
-    L.setTransform(1, 0, 0, 1, 0, 0);
-    L.drawImage(M.bild, 0, Math.round(M.y0 * DPR));
+    L.globalCompositeOperation = 'source-over';
   }
 
   // Weiche Maske über dem Hero-Text, nur bei neuer Grösse oder Textlage neu berechnet. Der Rand entsteht über einen
@@ -1504,10 +1531,11 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.globalCompositeOperation = 'source-over';
     const end = abschluss3DMix(p);
     const endBg = FARBEN ? [24, 16, 11] : [7, 27, 21];
-    ctx.fillStyle = end > 0 ? `rgb(${mischeFarbe(endBg, [7, 27, 21], end).join(",")})` : hintergrund;
+    const grund = end > 0 ? `rgb(${mischeFarbe(endBg, [7, 27, 21], end).join(",")})` : hintergrund;
+    ctx.fillStyle = grund;
     ctx.fillRect(0, 0, W, H);
     geraetProjizieren();
-    if (ansicht === '3d') landschaft(p);
+    if (ansicht === '3d') landschaft(p, grund);
     // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
     // er erscheint, sobald die Kamera der Spindel nach unten folgt.
     ctx.globalAlpha = smooth(range(p, 0.008, 0.06)) * (1 - end);
