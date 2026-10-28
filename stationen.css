@@ -29,7 +29,8 @@
 @media (max-width: 900px) { .stage:has(.cap:not(.seite).an) .hud { opacity: 0; } }
 
 /* ---------- Station: Grundgerüst ---------- */
-.thema { visibility: hidden; opacity: var(--mix, 0); }
+.thema, .thema.an { opacity: var(--mix, 0); transition: visibility 0s; }
+.thema { visibility: hidden; }
 .thema.an { visibility: visible; }
 .thema.an .thema-link { pointer-events: auto; }
 .thema-text { translate: var(--dx, 0px) calc(var(--dy, 0px) - var(--x, 0) * 14px); }
@@ -38,7 +39,7 @@
 .thema-nr::before { content: ""; flex: none; width: 26px; height: 1px; background: currentColor; transform: scaleX(var(--e, 0)); transform-origin: left; }
 .thema h2 { margin: 12px 0; font-size: clamp(26px, 2.3vw, 36px); font-weight: 400; letter-spacing: -.05em; line-height: 1.08; color: var(--text); }
 .thema p:not(.thema-nr) { margin: 0; font-size: 13px; line-height: 1.7; color: var(--muted); }
-.thema .fakt { margin-top: 10px; font-size: 11px; letter-spacing: .02em; color: var(--green); font-variant-numeric: tabular-nums; }
+.thema p.fakt { margin-top: 10px; font-size: 11px; letter-spacing: .02em; color: var(--green); font-variant-numeric: tabular-nums; }
 .thema-link { display: inline-flex; align-items: center; gap: 22px; margin-top: 18px; padding: 7px 0; font-size: 11px; color: var(--green); border-bottom: 1px solid currentColor; }
 .thema-link span { font-size: 17px; }
 /* Fokusziel nach einem Sprung aus der Stationsliste */
@@ -63,7 +64,7 @@
   .thema h2 { margin: 7px 0; font-size: 21px; }
   .thema h2 br { display: none; }
   .thema p:not(.thema-nr) { font-size: 12px; line-height: 1.55; }
-  .thema .fakt { margin-top: 7px; font-size: 10px; }
+  .thema p.fakt { margin-top: 7px; font-size: 10px; }
   .thema-link { margin-top: 10px; padding: 4px 0; gap: 14px; }
   .cap:not(.seite) { bottom: calc(14px + var(--reise-h) + 26px + var(--verdeckt)); }
 }
@@ -93,7 +94,7 @@
 /* ---------- 02 Wasserspiegel: der Text steigt von unten wie das Grundwasser, die Welle läuft mit ---------- */
 [data-stil="wasser"] .thema-inhalt { clip-path: inset(calc((1 - var(--pegel, 0)) * (100% + 48px) - 24px) -24px -24px -24px); }
 .motiv-welle { left: -6%; width: 112%; height: 12px; top: calc((1 - var(--pegel, 0)) * (100% + 48px) - 24px); translate: calc(var(--pegel, 0) * -30px) -50%; stroke: var(--blau); stroke-width: 1.3; opacity: calc((1 - var(--welle, 0)) * min(1, var(--pegel, 0) * 10)); }
-[data-stil="wasser"] h2 em, [data-stil="wasser"] .fakt { color: var(--blau); }
+[data-stil="wasser"] h2 em, [data-stil="wasser"] p.fakt { color: var(--blau); }
 
 /* ---------- 03 Hammer-Takt: vier Schläge setzen die Überschrift zusammen, jeder mit kurzem Rückstoss ---------- */
 [data-stil="takt"] .thema-text { --dx: var(--zittern, 0px); }
@@ -110,7 +111,7 @@
 /* ---------- 04 Kalt wird warm: die Jahreswelle der Oberfläche wird flach, die Farbe wechselt zu warm ---------- */
 [data-stil="temperatur"] .thema-inhalt { opacity: var(--inhalt, 0); }
 [data-stil="temperatur"] { --temp-farbe: color-mix(in srgb, var(--warm) calc(var(--waerme, 0) * 100%), var(--blau)); }
-[data-stil="temperatur"] h2 em, [data-stil="temperatur"] .fakt { color: var(--temp-farbe, var(--warm)); }
+[data-stil="temperatur"] h2 em, [data-stil="temperatur"] p.fakt { color: var(--temp-farbe, var(--warm)); }
 .motiv-jahr { display: block; width: 100%; height: 22px; margin: -2px 0 10px; overflow: visible; fill: none; stroke: var(--temp-farbe, var(--warm)); stroke-width: 1.3; transform: scaleY(calc(1 - var(--waerme, 0) * .94)); }
 
 /* ---------- 05 Bauplan: erst die Masslinie, dann ein feines Raster, dann der Text ---------- */
@@ -137,8 +138,8 @@
 /* ---------- 07 Absenken: als einzige Station von oben, die Doppel-U-Schlaufe zeichnet sich nach unten ---------- */
 [data-stil="absenken"] .thema-text { --dy: calc((1 - var(--sinken, 0)) * -56px); }
 [data-stil="absenken"] .thema-inhalt { opacity: min(1, calc(var(--sinken, 0) * 2.5)); }
-.motiv-schlaufe { width: 22px; height: 74%; top: 13%; right: -36px; stroke-width: 1.2; }
-.motiv-schlaufe path { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--schlaufe, 0)); }
+.motiv-schlaufe { width: 22px; height: 120px; top: calc(50% - 60px); right: -36px; stroke-width: 1.2; }
+.motiv-schlaufe path { vector-effect: none; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--schlaufe, 0)); }
 
 /* ---------- 08 Verpressen: die Hinterfüllung steigt von unten durchs Blatt, danach setzt sich der Text ---------- */
 [data-stil="verpressen"] .thema-inhalt { opacity: var(--inhalt, 0); }
@@ -153,7 +154,7 @@
 @media (max-width: 1100px) {
   .motiv-ziel { top: 8px; right: 10px; width: 28px; height: 28px; }
   .motiv-lot { left: auto; right: 18px; top: 0; height: 64px; }
-  .motiv-schlaufe { right: 12px; top: 14px; height: calc(100% - 28px); }
+  .motiv-schlaufe { right: 12px; top: 14px; width: 18px; height: 98px; }
   .motiv-fuellung { inset: 0; }
   .fuellung-kante { left: 0; right: 0; top: calc((1 - var(--fuellung, 0)) * 100%); }
   [data-stil="bauplan"] .thema-text::after { inset: 0; -webkit-mask-image: none; mask-image: none; }

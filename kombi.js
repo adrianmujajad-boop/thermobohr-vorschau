@@ -254,6 +254,9 @@
     .map(el => ({ name: el.dataset.kamera, von: +el.dataset.von, bis: +el.dataset.bis, thema: el.classList.contains('thema'), rechts: el.classList.contains('text-rechts') }))
     .sort((a, b) => a.von - b.von);
   const UEBERGANG_VOR = 0.006, UEBERGANG_NACH = 0.022;
+  // Gleiche Abfragen wie in stationen.css (Viewport mit Scrollleiste), damit Kamera und Layout übereinstimmen
+  const SCHMAL = window.matchMedia('(max-width: 1100px)');
+  const QUER = window.matchMedia('(max-width: 1100px) and (max-height: 520px) and (orientation: landscape)');
   const gewicht = {};   // aktueller Anteil jeder Einstellung, z. B. für den Massstab bei «plan»
 
   // t: Fortschritt innerhalb des Fensters (0..1) für eine leise Bewegung, solange die Station steht
@@ -293,9 +296,9 @@
   }
 
   function kamerafahrt(p, z, ovDist) {
-    const hoch = W / H < 0.8, schmal = W <= 1100;
+    const hoch = W / H < 0.8, schmal = SCHMAL.matches;
     // Handy quer: Station seitlich, die Bohrung in der Mitte des sichtbaren Teils über der Leiste
-    const sichtH = Math.min(H, window.innerHeight), quer = schmal && W > sichtH && sichtH <= 520;
+    const sichtH = Math.min(H, window.innerHeight), quer = QUER.matches;
     const querY = ((sichtH - 80) / 2 - H / 2) / H;
     let c = { ...einstellung('tauchen', z, 0, ovDist, hoch), kx: 0, ky: 0 };
     for (const k in gewicht) gewicht[k] = 0;
@@ -334,8 +337,7 @@
   function freistellen(z, p, dt) {
     let soll = 0;
     const st = window.ThermobohrStationen;
-    const sichtH = Math.min(H, window.innerHeight), quer = W > sichtH && sichtH <= 520;   // quer: Blatt seitlich
-    if (W <= 1100 && !quer && st && st.imBereich(p)) {
+    if (SCHMAL.matches && !QUER.matches && st && st.imBereich(p)) {   // quer steht das Blatt seitlich
       const oben = st.blattOben(), y = fokusTiefe(z);
       soll = hebung;
       if (oben !== null && y !== null) {
@@ -1206,7 +1208,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.textBaseline = 'middle';
     ctx.fillStyle = `rgba(170,205,176,${(0.8 * a).toFixed(3)})`;
     // Schmal steht unten das Blatt der Station; dort keine Zahlen
-    const unten = W <= 1100 ? H * .62 : H - 12;
+    const unten = SCHMAL.matches ? H * .62 : H - 12;
     for (let d = 0; d <= ENDTIEFE; d += 10) {
       const q = projiziere(MASS_X + 2.6, -d, 0);
       if (!q || q.y < 12 || q.y > unten) continue;

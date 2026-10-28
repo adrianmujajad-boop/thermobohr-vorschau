@@ -121,7 +121,8 @@
     panel.querySelector('a[href], button')?.focus({ preventScroll: true });
   });
   // Eigenes Scrollen beendet die Sprungfahrt sofort
-  for (const typ of ['wheel', 'touchstart', 'keydown']) window.addEventListener(typ, () => { sprung = null; }, { passive: true });
+  const abbrechen = () => { sprung = null; fokusNach = -1; fokusSchluss = false; };
+  for (const typ of ['wheel', 'touchstart', 'keydown']) window.addEventListener(typ, abbrechen, { passive: true });
 
   const reise = sektion.querySelector('.journey');
   const knoepfe = reise ? [...reise.querySelectorAll('.journey-stops button')] : [];
@@ -148,7 +149,18 @@
     titel.focus({ preventScroll: true });
   });
 
-  // Leertaste, Bild-ab und Bild-auf gehen in der Bohrung von Station zu Station (sonst überspringt ein Druck oft eine ganze Station)
+  // Halte für die Tasten: alle Stationen und die Zeilen «500 m» und «Gestänge zurück», nach Fortschritt geordnet
+  const halte = [
+    ...stationen.map(c => ({ station: c.i, von: c.von, bis: c.bis, ziel: zielVon(c) })),
+    ...[...sektion.querySelectorAll('.cap[data-kamera]')].map(el => ({ station: -1, von: +el.dataset.von, bis: +el.dataset.bis, ziel: +el.dataset.von + .018 })),
+  ].sort((a, b) => a.von - b.von);
+  function halten(h) {
+    if (h.station >= 0) { springe(h.station); return; }
+    sprung = { index: -1, ziel: h.ziel, seit: performance.now() };
+    scrollZu(h.ziel);
+  }
+
+  // Leertaste, Bild-ab und Bild-auf gehen in der Bohrung von Halt zu Halt (sonst überspringt ein Druck oft eine ganze Station)
   window.addEventListener('keydown', e => {
     if (!reiseSichtbar || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.target.closest && e.target.closest('a, button, input, select, textarea, summary, [contenteditable], dialog')) return;
@@ -156,13 +168,17 @@
     const zurueck = e.key === 'PageUp' || (e.key === ' ' && e.shiftKey);
     if (!vor && !zurueck) return;
     e.preventDefault();
-    if (vor) { springe(naechste); return; }
-    // zurück: in einer Station zur vorigen, in der Pause danach zur eben verlassenen
     const p = window.ThermobohrBohrung ? window.ThermobohrBohrung.fortschritt() : 0;
+    if (vor) {
+      const h = halte.find(x => x.von > p + .001);
+      if (h) halten(h); else springe(stationen.length);
+      return;
+    }
+    // zurück: in einem Halt zum vorigen, in der Pause danach zum eben verlassenen
     let i = -1;
-    stationen.forEach((c, k) => { if (c.von <= p + .001) i = k; });
-    if (i >= 0 && p <= stationen[i].bis) i -= 1;
-    if (i >= 0) springe(i); else scrollZu(0);
+    halte.forEach((x, k) => { if (x.von <= p + .001) i = k; });
+    if (i >= 0 && p <= halte[i].bis) i -= 1;
+    if (i >= 0) halten(halte[i]); else scrollZu(0);
   });
 
   function reiseAktualisieren(p) {
@@ -203,7 +219,8 @@
 
   // ---------- Bild für Bild ----------
   function aktualisieren(p) {
-    if (sprung && (Math.abs(p - sprung.ziel) < .003 || performance.now() - sprung.seit > 6000)) sprung = null;
+    if (sprung && performance.now() - sprung.seit > 6000) abbrechen();
+    if (sprung && Math.abs(p - sprung.ziel) < .003) sprung = null;
     for (const c of stationen) {
       const e = range(p, c.von, c.von + EIN);
       const xRoh = range(p, c.bis - AUS, c.bis);
@@ -230,7 +247,7 @@
         c.bereit = bereit;
         c.el.inert = !bereit;
         c.el.setAttribute('aria-hidden', String(!bereit));
-        if (bereit && fokusNach === c.i) { fokusNach = -1; c.el.querySelector('h2')?.focus({ preventScroll: true }); }
+        if (bereit && fokusNach === c.i && (!sprung || sprung.index === c.i)) { fokusNach = -1; c.el.querySelector('h2')?.focus({ preventScroll: true }); }
       }
     }
     reiseAktualisieren(p);
