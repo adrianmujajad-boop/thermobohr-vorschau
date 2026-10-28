@@ -1196,6 +1196,31 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   }
 
+  // Wärme im Boden: Im Hero glimmt das Gelände rund um den Bohrpunkt leicht warm – die Wärme, um die es geht.
+  // Nur im Gelände (unterhalb des Horizonts), die grünen Linien der Landschaft liegen darüber. Beim Eintauchen
+  // blendet der Schimmer aus, dann übernehmen die mit der Tiefe wärmer werdenden Farben.
+  function bodenWaerme(p) {
+    const a = 1 - smooth(range(p, 0.02, 0.08));
+    if (a < 0.01) return;
+    const fuss = projiziere(0, 0, 0), tief = projiziere(0, -40, 0);
+    const hl = Math.hypot(K.px, K.pz) || 1, horizont = projiziere(-K.px / hl * 160, 0, -K.pz / hl * 160);
+    if (!fuss || !tief || !horizont) return;
+    const r = Math.max(160, (tief.y - fuss.y) * 0.9);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, horizont.y, W, H - horizont.y);
+    ctx.clip();
+    ctx.translate(fuss.x, fuss.y + r * 0.18);
+    ctx.scale(2, 1);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    g.addColorStop(0, `rgba(240,168,92,${(0.3 * a).toFixed(3)})`);
+    g.addColorStop(0.5, `rgba(214,138,70,${(0.1 * a).toFixed(3)})`);
+    g.addColorStop(1, 'rgba(214,138,70,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(-r, -r, 2 * r, 2 * r);
+    ctx.restore();
+  }
+
   // Haltung: ein Lot neben der Bohrung, von einer Aufhängung über dem Gelände bis auf die Tiefe des Bohrkopfs
   const LOT_X = 14;
   function lotlinie(a, z) {
@@ -1526,6 +1551,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.fillStyle = grund;
     ctx.fillRect(0, 0, W, H);
     geraetProjizieren();
+    bodenWaerme(p);
     if (ansicht === '3d') landschaft(p, grund);
     // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
     // er erscheint, sobald die Kamera der Spindel nach unten folgt.
