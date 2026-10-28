@@ -272,6 +272,18 @@
   }
   const imBereich = p => p >= stationen[0].von - .02 && p <= stationen[stationen.length - 1].bis + .004;
 
+  // Handymenü (weisses Blatt, ui.css): Seite dahinter festhalten, mit Esc oder einem Link schliessen
+  const menue = document.querySelector('.header .menu');
+  if (menue) {
+    const knopf = menue.querySelector('summary');
+    menue.addEventListener('toggle', () => {
+      document.documentElement.classList.toggle('menu-offen', menue.open);
+      knopf?.setAttribute('aria-label', menue.open ? 'Menü schliessen' : 'Menü öffnen');
+    });
+    menue.querySelectorAll('nav a').forEach(a => a.addEventListener('click', () => { menue.open = false; }));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && menue.open) { menue.open = false; knopf?.focus(); } });
+  }
+
   // springt(): läuft gerade eine Sprungfahrt? kombi.js lässt dann auch die Zeilen 500 m / Gestänge aus
   window.ThermobohrStationen = { aktualisieren, springe, springt: () => sprung !== null, blattOben, imBereich, anzahl: stationen.length };
 })();
