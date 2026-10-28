@@ -80,6 +80,8 @@
   .website .hud { top: 22px; bottom: auto; transform: none; }
   .stage::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 130px; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgb(var(--buehne, 7 27 21) / .92), rgb(var(--buehne, 7 27 21) / 0)); opacity: 0; transition: opacity .4s; }
   .stage.reise-an::before { opacity: 1; }
+  /* zum Schluss rasch weg, bevor die Kopfzeile des Abschlusses erscheint */
+  .stage.ending-active .hud { opacity: calc(1 - var(--ending, 0) * 3); }
 }
 /* Handy: auch die Temperatur mit Strichleiter (die Tiefe hat sie über mobile-depth.css) */
 @media (max-width: 520px) {
