@@ -201,6 +201,8 @@
   }
   const canvas = document.getElementById('szene');
   const ctx = canvas.getContext('2d');
+  // Einstieg beim Öffnen (einstieg.js, aus Codex/Intro-Studien-v002 «02+»): Kamerabogen von der Krone, Gerät blendet ein
+  const EINSTIEG = window.ThermobohrEinstieg;
   let W = 1, H = 1, DPR = 1;
   function groesse() {
     DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -1256,6 +1258,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   }
 
   function bohrgeraet(sicht) {
+    if (EINSTIEG && EINSTIEG.active) sicht *= EINSTIEG.rig;
     if (!RIG || sicht < 0.02) return;
     const { kanten, sx, sy, sz, buendel } = RIG, zMin = RIG.zMin, zMax = RIG.zMax;
     if (!(zMax >= NAH)) return;
@@ -1480,6 +1483,13 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.fillRect(0, 0, W, H);
     geraetProjizieren();
     if (ansicht === '3d') landschaft(p, grund);
+    // Einstieg: die nahe, leicht drehende Bohrkrone, bevor die Kamera zur Startansicht zurückfährt
+    if (EINSTIEG && EINSTIEG.active && EINSTIEG.cameraMix < .72) {
+      ctx.globalCompositeOperation = 'lighter';
+      bohrkopfAlternative(1 - smooth(range(EINSTIEG.cameraMix, .35, .72)), 0, .2 + EINSTIEG.spin, 6);
+      ausgeben();
+      ctx.globalCompositeOperation = 'source-over';
+    }
     // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
     // er erscheint, sobald die Kamera der Spindel nach unten folgt.
     ctx.globalAlpha = smooth(range(p, 0.008, 0.06)) * (1 - end);
@@ -1692,6 +1702,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   let p = scrollFortschritt(), zeit = 0, letzte = performance.now(), letzteTiefe = 0, laeuft = false;
 
   function frame(jetzt) {
+    if (EINSTIEG) EINSTIEG.tick(jetzt);
     const dt = Math.min(0.05, (jetzt - letzte) / 1000);
     letzte = jetzt;
     if (!REDUZIERT) zeit += dt;
@@ -1711,6 +1722,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     if (NUTZER.auto && !ziehen) NUTZER.yaw += dt * 0.12;
     if (FARBEN) farbenNachTiefe(z.bohrtiefe / ENDTIEFE);
     const kam = kameraZustand(p, z);
+    if (EINSTIEG && EINSTIEG.active) EINSTIEG.setCamera(kam);
     kam.oy -= hebung;
     kameraSetzen(kam);
     freistellen(z, p, dt);

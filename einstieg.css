@@ -1,0 +1,26 @@
+@charset "UTF-8";
+/*
+ * Thermobohr AG – Einstieg beim Öffnen (einstieg.js), aus Codex/Intro-Studien-v002, Variante «02+».
+ * Solange html.einstieg gesetzt ist, steuert einstieg.js Titel, Knopf, Kopfzeile und Hinweise über CSS-Variablen;
+ * das Logo (.einstieg-marke) fliegt aus der Szene in die Kopfzeile.
+ */
+html.einstieg .hero-copy, html.einstieg .hero-copy.an, html.einstieg .hero-grund { opacity: var(--einstieg-text, 0) !important; }
+html.einstieg .hero-copy h1 { opacity: var(--einstieg-titel, 0); transform: translateY(calc((1 - var(--einstieg-titel, 0)) * 14px)); }
+html.einstieg .hero-copy .primary-link { opacity: var(--einstieg-knopf, 0); transform: translateY(calc((1 - var(--einstieg-knopf, 0)) * 6px)); }
+html.einstieg .header .brand { opacity: var(--einstieg-marke, 0); }
+html.einstieg .header .hauptnav, html.einstieg .header .menu { opacity: var(--einstieg-nav, 0); }
+html.einstieg .scroll-cue, html.einstieg .ueberspringen { opacity: var(--einstieg-fuss, 0) !important; }
+
+.einstieg-marke { position: fixed; top: 0; left: 0; z-index: 45; width: 420px; pointer-events: none; isolation: isolate; will-change: transform, width, opacity; }
+.einstieg-marke img { display: block; width: 100%; height: auto; }
+.einstieg-marke span { position: absolute; top: calc(100% + 26px); left: 0; right: 0; color: #9cb993; font: 10px Arial, Helvetica, sans-serif; letter-spacing: .32em; text-align: center; white-space: nowrap; }
+/* Ruhiger Grund hinter dem Logo, damit es über der Krone lesbar bleibt */
+.einstieg-marke::before { content: ""; position: absolute; inset: -25px -45px; z-index: -1; background: radial-gradient(ellipse, #071b15f5 15%, #071b15dd 42%, #071b1500 74%); }
+/* Lichtzug, der einmal über den Schriftzug läuft */
+.einstieg-marke::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(108deg, transparent 0%, transparent 43%, #f2ffe3 50%, transparent 57%, transparent 100%);
+  background-size: 240% 100%; background-position: var(--glanz-lage, 0%) 0; opacity: var(--glanz, 0);
+  -webkit-mask-image: url("assets/Logo-hell.png"); mask-image: url("assets/Logo-hell.png");
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+}
