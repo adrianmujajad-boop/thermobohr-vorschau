@@ -1462,6 +1462,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
         const de = Math.min(r.deckung[k - 1], r.deckung[k]);
         if (de < 0.03 || RY[k] !== RY[k] || RY[k - 1] !== RY[k - 1]) continue;
         const stufe = Math.min(RELIEF_STUFEN - 1, Math.round(de / 0.78 * (RELIEF_STUFEN - 1)));
+        if (stufe === 0) continue;   // zu zart zum Zeichnen; ungesammelt bleibt das Bündel leer
         const ton = Math.round(Math.max(r.schnee[k - 1], r.schnee[k]) * (RELIEF_TOENE - 1));
         reliefBuendel[ton * RELIEF_STUFEN + stufe].push(RX[k - 1], RY[k - 1], RX[k], RY[k]);
       }

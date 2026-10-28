@@ -11,7 +11,6 @@
 /* Die Bühne ist mindestens 560 px hoch (kombi.css). Auf niedrigen Bildschirmen (Handy quer) liegt ihr unterer Teil
    ausserhalb des Bildes: --verdeckt hebt alles, was unten steht, an den sichtbaren Rand. */
 .stage { --reise-h: 62px; --verdeckt: max(0px, 100% - 100svh); }
-.scroll-cue, .ueberspringen { bottom: calc(26px + var(--verdeckt)); }
 /* Unsichtbare Links nicht mehr per Tabulator erreichbar: Scroll-Hinweis nach dem Intro, «Überspringen» im Schluss */
 .scroll-cue { transition: opacity .5s, visibility 0s; }
 .scroll-cue.weg { visibility: hidden; transition: opacity .5s, visibility 0s .5s; }
@@ -179,6 +178,9 @@
   [data-stil="absenken"] .thema-inhalt, [data-stil="lot"] .thema-inhalt { padding-right: 44px; }
 }
 
+/* Sehr schmale Handys: vom Scroll-Hinweis bleibt der Pfeil, damit «Animation überspringen» Platz hat */
+@media (max-width: 360px) { .scroll-cue span:first-child { display: none; } }
+
 /* ---------- Stationsleiste: zeigt, wo man ist; Antippen springt zur Station ---------- */
 .journey { position: absolute; left: var(--seite); bottom: calc(22px + var(--verdeckt)); width: min(420px, 40%); z-index: 6; opacity: var(--journey-opacity, 0); visibility: hidden; pointer-events: none; font-variant-numeric: tabular-nums; }
 .journey.is-visible { visibility: visible; pointer-events: auto; }
@@ -206,8 +208,8 @@
 @media (max-width: 900px) {
   /* «Animation überspringen» bleibt auch auf dem Handy erreichbar, solange die Leiste noch nicht da ist */
   /* Eigene, genügend grosse Tippfläche; der Scroll-Hinweis reicht nicht mehr darunter */
-  .scroll-cue { bottom: calc(18px + var(--verdeckt)); right: auto; padding-right: 8px; }
-  .ueberspringen { display: flex; align-items: flex-end; min-height: 44px; padding: 0 0 2px 18px; bottom: calc(16px + var(--verdeckt)); }
+  .scroll-cue { right: auto; padding-right: 8px; }
+  .ueberspringen { display: flex; align-items: flex-end; min-height: 44px; padding: 0 0 2px 18px; bottom: 16px; }
 }
 
 /* ---------- Stationsliste unter der Animation: alles auch ohne Animation erreichbar ---------- */

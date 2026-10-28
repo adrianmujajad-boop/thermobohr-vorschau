@@ -142,8 +142,10 @@
     if (!ziel || sektion.contains(ziel)) return;
     e.preventDefault();
     sprung = null;
+    // wie ein normaler Ankerlink ein Verlaufseintrag; die Zurück-Taste führt an die alte Stelle zurück
+    history.replaceState({ ...(history.state || {}), y: window.scrollY }, '');
+    history.pushState(null, '', a.hash);
     ziel.scrollIntoView({ behavior: 'instant' });
-    history.replaceState(null, '', a.hash);
     const titel = ziel.querySelector('h2') || ziel;
     if (!titel.hasAttribute('tabindex')) titel.setAttribute('tabindex', '-1');
     titel.focus({ preventScroll: true });
@@ -159,6 +161,10 @@
     sprung = { index: -1, ziel: h.ziel, seit: performance.now() };
     scrollZu(h.ziel);
   }
+
+  window.addEventListener('popstate', e => {
+    if (e.state && typeof e.state.y === 'number') window.scrollTo({ top: e.state.y, behavior: 'instant' });
+  });
 
   // Leertaste, Bild-ab und Bild-auf gehen in der Bohrung von Halt zu Halt (sonst überspringt ein Druck oft eine ganze Station)
   window.addEventListener('keydown', e => {
