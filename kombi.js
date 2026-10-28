@@ -1259,6 +1259,205 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.lineCap = 'butt';
   }
 
+  // ---------- Landschaft im Hero: Relief aus parallelen Linien (wie der Globus der infradot-Website) ----------
+  // Ein Höhenfeld rund um das Gerät, als Linien quer zum Blick gezeichnet. Linien erscheinen nur, wo das
+  // Gelände ansteigt (rund um das Gerät bleibt es flach und leer), zu den Gipfeln hin heller. Weiter hinten
+  // liegende Linien verschwinden hinter näheren Hügeln. Alles in Weltkoordinaten (Meter, wie das Gerät), also mit
+  // derselben Perspektive und Drehung. Gezeichnet wird auf eine eigene Fläche; rund um die Striche des Geräts und
+  // über dem Hero-Text wird sie wieder freigestellt.
+  const RELIEF_TIEF = [89, 140, 107], RELIEF_GIPFEL = [201, 233, 160], RELIEF_PUNKTE = 151;   // 600 m in Schritten von 4 m
+  // Das Höhenfeld liegt fest in der Welt, beschrieben in der Startansicht: u nach rechts, d vom Betrachter weg nach hinten (Meter)
+  const RELIEF_START = 0.49;   // Blickrichtung der Startansicht wie in kameraZustand()
+  const reliefHoehe = (() => {
+    // [u, d, Breite u, Breite d, Höhe]: die Berge hinter dem Gerät in der Startansicht …
+    const berge = [40, 215, 50, 45, 44, -75, 235, 65, 50, 36, 150, 245, 60, 55, 38, -180, 205, 60, 50, 32,
+      0, 125, 110, 30, 11, -115, 115, 50, 30, 15, 100, 130, 45, 30, 17];
+    // … und rundherum weitere, damit nach jeder Drehung Gelände hinter dem Gerät liegt
+    for (let i = 0; i < 8; i++) {
+      const w = (62 + i * 33.5) * Math.PI / 180, r = 230 + 25 * Math.sin(i * 2.1);
+      berge.push(r * Math.sin(w), r * Math.cos(w), 58, 50, 36 + 8 * Math.sin(i * 1.7 + 0.6));
+      if (i < 7) berge.push(130 * Math.sin(w + 0.3), 130 * Math.cos(w + 0.3), 50, 32, 12 + 4 * Math.sin(i * 2.6));
+    }
+    const hoehe = (u, d) => {
+      const w2 = u * u + d * d * 1.69;   // rund um das Gerät flach: (u, 1.3·d) zwischen 45 und 170 m
+      if (w2 <= 45 * 45) return 0;
+      const weit = w2 >= 170 * 170 ? 1 : smooth((Math.sqrt(w2) - 45) / 125);
+      let y = 0;
+      for (let j = 0; j < berge.length; j += 5) {
+        const a = (u - berge[j]) / berge[j + 2], b = (d - berge[j + 1]) / berge[j + 3], q = a * a + b * b;
+        if (q < 12) y += berge[j + 4] * Math.exp(-q);   // weiter weg trägt ein Berg nichts mehr bei
+      }
+      const grat = 1 - Math.abs(Math.sin(u * 0.045 + Math.sin(d * 0.05) * 1.6));   // Grat-Rauschen
+      return y * (0.8 + 0.35 * grat) * weit;
+    };
+    // Einmal auf ein 5-m-Raster (±435 m) gerechnet, danach nur noch nachgeschlagen: das Abtasten beim Drehen bleibt billig
+    const S = 5, N = 175, M = 87;
+    let raster = null;
+    return (u, d) => {
+      if (!raster) {
+        raster = new Float32Array(N * N);
+        for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) raster[j * N + i] = hoehe((i - M) * S, (j - M) * S);
+      }
+      const x = u / S + M, y = d / S + M, i = Math.floor(x), j = Math.floor(y);
+      if (i < 0 || j < 0 || i >= N - 1 || j >= N - 1) return 0;
+      const fx = x - i, fy = y - j, o = j * N + i;
+      return (raster[o] * (1 - fx) + raster[o + 1] * fx) * (1 - fy) + (raster[o + N] * (1 - fx) + raster[o + N + 1] * fx) * fy;
+    };
+  })();
+  // Die Linien laufen immer quer zum aktuellen Blick (wie bei infradot): 38 Reihen 40 … 299 m hinter dem Gerät.
+  // Beim Drehen werden sie neu abgetastet, das Gelände selbst bleibt stehen.
+  const RELIEF = Array.from({ length: 38 }, (_, i) => ({
+    d: 40 + i * 7, pts: new Float64Array(RELIEF_PUNKTE * 3), deckung: new Float32Array(RELIEF_PUNKTE), schnee: new Float32Array(RELIEF_PUNKTE),
+  }));
+  let reliefRichtung = NaN;
+  function reliefAbtasten(th) {
+    const cs = Math.cos(th), sn = Math.sin(th), cw = Math.cos(th - RELIEF_START), sw = Math.sin(th - RELIEF_START);
+    for (const r of RELIEF) {
+      const d = r.d, P = r.pts;
+      for (let k = 0; k < RELIEF_PUNKTE; k++) {
+        const u = -300 + k * 4, y = reliefHoehe(u * cw - d * sw, u * sw + d * cw);
+        P[3 * k] = u * cs - d * sn; P[3 * k + 1] = y; P[3 * k + 2] = -u * sn - d * cs;
+        r.schnee[k] = smooth(range(y, 16, 40));
+        r.deckung[k] = smooth(range(y, 2.5, 9)) * (0.28 + 0.5 * r.schnee[k]);
+      }
+    }
+  }
+  const RELIEF_STUFEN = 7, RELIEF_TOENE = 3;
+  const reliefBuendel = Array.from({ length: RELIEF_STUFEN * RELIEF_TOENE }, () => []);
+  // Bildschirmlage der Linie (RX/RY) und ihres Fusses auf Geländehöhe 0 (FY), NaN hinter der Kamera
+  const RX = new Float64Array(RELIEF_PUNKTE), RY = new Float64Array(RELIEF_PUNKTE), FX = new Float64Array(RELIEF_PUNKTE), FY = new Float64Array(RELIEF_PUNKTE);
+  const landBild = document.createElement('canvas'), landCtx = landBild.getContext('2d');
+  const heroText = document.querySelector('.hero-copy');
+  let textRahmen = null;   // Fläche des Hero-Texts über dem Canvas; nach Grössenänderung neu messen
+
+  function textMessen() {
+    const c = canvas.getBoundingClientRect(), r = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    if (!heroText) return r;
+    // Beim Einblenden ist der Text noch verschoben (.cap.seite ohne .an): gemessen wird die Endlage
+    const t = getComputedStyle(heroText).transform, m = t && t !== 'none' ? new DOMMatrixReadOnly(t) : null;
+    const dx = m ? m.m41 : 0, dy = m ? m.m42 : 0;
+    for (const el of heroText.children) {
+      const b = el.getBoundingClientRect();
+      r.x0 = Math.min(r.x0, b.left - dx - c.left); r.x1 = Math.max(r.x1, b.right - dx - c.left);
+      r.y0 = Math.min(r.y0, b.top - dy - c.top); r.y1 = Math.max(r.y1, b.bottom - dy - c.top);
+    }
+    return r;
+  }
+
+  function landschaft(p) {
+    const a = 1 - smooth(range(p, 0.003, 0.018));
+    if (a < 0.01 || !RIG) return;
+    const fuss = projiziere(0, 0, 0), kopf = projiziere(0, RIG.hoehe, 0);
+    if (!fuss || !kopf || fuss.y - kopf.y < 40) return;
+    const h = fuss.y - kopf.y, T = textRahmen || (textRahmen = textMessen());
+    // Neu zeichnen nur, wenn sich Ansicht, Grösse oder Text verschoben haben; sonst das fertige Bild übernehmen.
+    // Beim Ausblenden (Scrollen) bleibt das Bild stehen, ausser der Besucher dreht das Gerät noch.
+    const schluessel = [fuss.x, fuss.y, h, K.rx, K.ux, K.uy, canvas.width, canvas.height, T.x1, T.y0, T.y1].map(v => v.toFixed(3)).join('|');
+    const nutzer = `${NUTZER.yaw}|${NUTZER.pitch}|${NUTZER.zoom}`;
+    if (schluessel !== landSchluessel && (p < 0.003 || !landSchluessel || nutzer !== landNutzer)) {
+      landSchluessel = schluessel; landNutzer = nutzer;
+      landZeichnen(T);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = a;
+    ctx.drawImage(landBild, 0, 0, W, H);
+    ctx.globalAlpha = 1;
+  }
+
+  let landSchluessel = '', landNutzer = '';
+  function landZeichnen(T) {
+    if (landBild.width !== canvas.width || landBild.height !== canvas.height) {
+      landBild.width = canvas.width; landBild.height = canvas.height;
+    }
+    const L = landCtx;
+    L.setTransform(1, 0, 0, 1, 0, 0);
+    L.globalCompositeOperation = 'source-over';
+    L.clearRect(0, 0, landBild.width, landBild.height);
+    L.setTransform(DPR, 0, 0, DPR, 0, 0);
+    L.lineJoin = L.lineCap = 'round';
+    L.lineWidth = 1;
+    const th = Math.atan2(K.px, K.pz);   // aktuelle Blickrichtung (Kamera kreist um das Gerät)
+    if (th !== reliefRichtung) { reliefRichtung = th; reliefAbtasten(th); }
+    const auf =(x, y, z, X, Y, k) => {   // wie projiziere(), aber ohne neues Objekt
+      const dx = x - K.px, dy = y - K.py, dz = z - K.pz, cz = dx * K.fx + dy * K.fy + dz * K.fz;
+      if (cz < NAH) { X[k] = Y[k] = NaN; return; }
+      X[k] = K.cx + (dx * K.rx + dz * K.rz) * K.f / cz;
+      Y[k] = K.cy - (dx * K.ux + dy * K.uy + dz * K.uz) * K.f / cz;
+    };
+    for (let i = RELIEF.length - 1; i >= 0; i--) {   // von hinten nach vorne
+      const r = RELIEF[i], n = RELIEF_PUNKTE, P = r.pts;
+      let erst = -1, letzt = -1;
+      for (let k = 0; k < n; k++) {
+        auf(P[3 * k], P[3 * k + 1], P[3 * k + 2], RX, RY, k);
+        auf(P[3 * k], 0, P[3 * k + 2], FX, FY, k);
+        if (RY[k] === RY[k] && FY[k] === FY[k]) { if (erst < 0) erst = k; letzt = k; }
+      }
+      if (erst < 0) continue;
+      // Verdecken: der Hang dieser Linie (zwischen Linie und Fuss) löscht weiter hinten gezeichnete Linien
+      L.globalCompositeOperation = 'destination-out';
+      L.beginPath();
+      for (let k = erst; k <= letzt; k++) if (RY[k] === RY[k]) L.lineTo(RX[k], RY[k]);
+      for (let k = letzt; k >= erst; k--) if (FY[k] === FY[k]) L.lineTo(FX[k], FY[k] + 1);
+      L.fill();
+      // Linie: nach Deckung und Farbton gebündelt
+      L.globalCompositeOperation = 'source-over';
+      for (let k = erst + 1; k <= letzt; k++) {
+        const de = Math.min(r.deckung[k - 1], r.deckung[k]);
+        if (de < 0.03 || RY[k] !== RY[k] || RY[k - 1] !== RY[k - 1]) continue;
+        const stufe = Math.min(RELIEF_STUFEN - 1, Math.round(de / 0.78 * (RELIEF_STUFEN - 1)));
+        const ton = Math.round(Math.max(r.schnee[k - 1], r.schnee[k]) * (RELIEF_TOENE - 1));
+        reliefBuendel[ton * RELIEF_STUFEN + stufe].push(RX[k - 1], RY[k - 1], RX[k], RY[k]);
+      }
+      for (let ton = 0; ton < RELIEF_TOENE; ton++) {
+        for (let st = 1; st < RELIEF_STUFEN; st++) {
+          const B = reliefBuendel[ton * RELIEF_STUFEN + st];
+          if (!B.length) continue;
+          const farbe = mischeFarbe(RELIEF_TIEF, RELIEF_GIPFEL, ton / (RELIEF_TOENE - 1));
+          L.strokeStyle = `rgba(${farbe.join(',')},${(st / (RELIEF_STUFEN - 1) * 0.78).toFixed(3)})`;
+          L.beginPath();
+          for (let j = 0; j < B.length; j += 4) { L.moveTo(B[j], B[j + 1]); L.lineTo(B[j + 2], B[j + 3]); }
+          L.stroke();
+          B.length = 0;
+        }
+      }
+    }
+    // Freistellen: ein schmaler Rand um jeden Strich des Geräts (eckige Enden sind deutlich billiger als runde),
+    // dazu weich der Hero-Text
+    L.globalCompositeOperation = 'destination-out';
+    L.lineWidth = 9;
+    L.lineCap = 'square';
+    L.beginPath();
+    const { sx, sy, sz, kanten } = RIG;
+    for (let k = 0; k < kanten.length; k += 3) {
+      const i = kanten[k], j = kanten[k + 1];
+      if (sz[i] < NAH || sz[j] < NAH) continue;
+      L.moveTo(sx[i], sy[i]); L.lineTo(sx[j], sy[j]);
+    }
+    L.stroke();
+    const M = textMaske(T);
+    L.setTransform(1, 0, 0, 1, 0, 0);
+    L.drawImage(M.bild, 0, Math.round(M.y0 * DPR));
+  }
+
+  // Weiche Maske über dem Hero-Text, nur bei neuer Grösse oder Textlage neu berechnet. Der Rand entsteht über einen
+  // Schatten: das Rechteck selbst liegt ausserhalb, nur sein Schatten fällt auf den Text. Die Maske reicht links bis
+  // über den Seitenrand und deckt oben und unten nur den Textbereich ab.
+  const maske = { bild: document.createElement('canvas'), schluessel: '', y0: 0 };
+  function textMaske(T) {
+    const s = [T.x1, T.y0, T.y1, DPR].join('|');
+    if (s === maske.schluessel) return maske;
+    maske.schluessel = s;
+    const rand = 110;   // Platz für den Schatten (bis 3 σ bei DPR 1)
+    maske.y0 = T.y0 - 30 - rand;
+    maske.bild.width = Math.ceil((T.x1 + 40 + rand) * DPR);
+    maske.bild.height = Math.ceil((T.y1 - T.y0 + 60 + 2 * rand) * DPR);
+    const M = maske.bild.getContext('2d');
+    M.setTransform(DPR, 0, 0, DPR, 0, -maske.y0 * DPR);
+    M.shadowColor = '#000'; M.shadowBlur = 36; M.shadowOffsetX = 1e4 * DPR;
+    M.fillRect(-1e4 - 40, T.y0 - 30, T.x1 + 40 + 40, T.y1 - T.y0 + 60);
+    return maske;
+  }
+
   function zeichnen(z, p) {
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
@@ -1266,8 +1465,9 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     const endBg = FARBEN ? [24, 16, 11] : [7, 27, 21];
     ctx.fillStyle = end > 0 ? `rgb(${mischeFarbe(endBg, [7, 27, 21], end).join(",")})` : hintergrund;
     ctx.fillRect(0, 0, W, H);
-    // In der Geräteansicht tritt der Untergrund zurück
-    ctx.globalAlpha = lerp(0.2, 1, smooth(range(p, 0.005, 0.06))) * (1 - end);
+    // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
+    // er erscheint, sobald die Kamera der Spindel nach unten folgt.
+    ctx.globalAlpha = smooth(range(p, 0.008, 0.06)) * (1 - end);
     ctx.globalCompositeOperation = 'lighter';
     const ov = smooth(range(K.dist, 60, 420));   // 0 = nah am Bohrkopf, 1 = Gesamtansicht
     schichtbaender(ov);
@@ -1294,6 +1494,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     // Nah an der Bohrung tritt das Gerät etwas zurück, damit die Texte lesbar bleiben
     // Bildkonturen / Original ersetzen das Gerät in der Geräteansicht
     if (ansicht === '3d') bohrgeraet(lerp(lerp(1, 0.6, smooth(range(p, 0.04, 0.1))), 1, end));
+    landschaft(p);   // nach dem Gerät: braucht dessen projizierte Striche zum Freistellen
   }
 
   // ---------- HUD und Texte ----------
@@ -1377,6 +1578,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   function autoStopp() {
     NUTZER.auto = false;
     const b = $('rotate');
+    if (!b) return;
     b.setAttribute('aria-pressed', 'false');
     b.setAttribute('aria-label', 'Automatische Drehung starten');
   }
@@ -1409,16 +1611,18 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   }
 
   document.querySelectorAll('.mode').forEach(b => b.addEventListener('click', () => ansichtWaehlen(b.dataset.view)));
-  $('zoom-in').addEventListener('click', () => zoom(0.1));
-  $('zoom-out').addEventListener('click', () => zoom(-0.1));
-  $('reset').addEventListener('click', zuruecksetzen);
-  $('rotate').addEventListener('click', () => {
+  // Die Werkzeugleiste ist optional: Die Startseite zeigt das Gerät ohne Leiste, Ziehen und Tastatur bleiben.
+  const knopf = (id, aktion) => { const b = $(id); if (b) b.addEventListener('click', aktion); };
+  knopf('zoom-in', () => zoom(0.1));
+  knopf('zoom-out', () => zoom(-0.1));
+  knopf('reset', zuruecksetzen);
+  knopf('rotate', () => {
     if (NUTZER.auto) { autoStopp(); return; }
     NUTZER.auto = true;
     $('rotate').setAttribute('aria-pressed', 'true');
     $('rotate').setAttribute('aria-label', 'Automatische Drehung anhalten');
   });
-  if (REDUZIERT) $('rotate').disabled = true;
+  if (REDUZIERT && $('rotate')) $('rotate').disabled = true;
 
   // Waagrechtes Ziehen dreht das Gerät; senkrecht wird auf Touchgeräten weiter gescrollt (touch-action: pan-y).
   canvas.addEventListener('pointerdown', e => {
@@ -1509,7 +1713,8 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   }
 
   groesse();
-  window.addEventListener('resize', () => { groesse(); if (!laeuft) requestAnimationFrame(frame); });
+  window.addEventListener('resize', () => { groesse(); textRahmen = null; if (!laeuft) requestAnimationFrame(frame); });
+  window.addEventListener('load', () => { textRahmen = null; });   // Schriften verschieben den Text noch
 
   // Prüfhilfe: index.html?p=0.6 springt direkt zu diesem Fortschritt der Animation
   const sprung = parseFloat(new URLSearchParams(location.search).get('p'));

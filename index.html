@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex, nofollow">
   <title>Thermobohr AG – Erdsondenbohrungen. Energie aus der Tiefe.</title>
   <meta name="description" content="Thermobohr AG – Erdsondenbohrungen für Erdwärme. Vom Rotomax-Bohrgerät 500 Meter in den Untergrund bis zur fertigen Erdwärmesonde.">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#071b15">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23071b15'/%3E%3Cpath d='M10 11h20M20 11v21M24 18q0-10 10-11-1 10-10 11' fill='none' stroke='%23b9dc87' stroke-width='2'/%3E%3C/svg%3E">
   <!-- Bühne, Viewer und Bohranimation teilt diese Seite mit der kombinierten Fassung -->
   <link rel="stylesheet" href="kombi.css">
@@ -23,7 +23,7 @@
 </head>
 <body class="website">
   <header class="header">
-    <a class="brand" href="#start" aria-label="Thermobohr AG – Start"><img src="assets/Logo.jpg" alt="Thermobohr AG" width="256" height="85"></a>
+    <a class="brand" href="#start" aria-label="Thermobohr AG – Start"><img src="assets/Logo-hell.png" alt="Thermobohr AG" width="1024" height="146"></a>
     <nav class="hauptnav" aria-label="Hauptnavigation">
       <a href="leistungen.html">Leistungen</a>
       <a href="erdsondenbohrung.html">Erdsondenbohrung</a>
@@ -74,23 +74,8 @@
           </div>
         </section>
 
-        <div class="viewer" data-von="0" data-bis="0.03">
-          <div class="viewer-heading"><span><span class="live-dot"></span> ROTOMAX</span><span id="view-kind">RÄUMLICHE LINIENSTUDIE</span></div>
-          <div class="viewer-flaeche">
-            <div class="viewer-note" id="viewer-note"><span class="drag-mark" aria-hidden="true">↔</span> Ziehen, um die Maschine zu drehen</div>
-            <span class="scale-note" id="scale-note">FORMSTUDIE · NICHT MASSSTÄBLICH</span>
-          </div>
-          <div class="viewer-toolbar">
-            <span class="nur-3d"><span class="wire-icon" aria-hidden="true">◇</span>3D-Linien</span>
-            <div class="tools" role="group" aria-label="3D-Ansicht steuern">
-              <button id="rotate" class="tool" aria-label="Automatische Drehung starten" aria-pressed="false" title="Automatisch drehen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 9a7 7 0 1 0 0 7M19 4v5h-5"/></svg></button>
-              <button id="zoom-out" class="tool" aria-label="Verkleinern" title="Verkleinern">−</button>
-              <button id="zoom-in" class="tool" aria-label="Vergrössern" title="Vergrössern">+</button>
-              <button id="reset" class="tool" aria-label="Ansicht zurücksetzen" title="Ansicht zurücksetzen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4m0 5h5M4 9a8 8 0 1 1-1 6"/></svg></button>
-            </div>
-          </div>
-          <p class="viewer-caption" id="viewer-caption">Das Rotomax als räumliche Linienstudie. Die Bohrspindel steht genau über der Bohrung.</p>
-        </div>
+        <!-- Geräteansicht: Ziehen dreht das Gerät; .viewer.an zeigt den Greif-Cursor und blendet die Messwerte aus -->
+        <div class="viewer" data-von="0" data-bis="0.03" aria-hidden="true"></div>
 
         <div class="hud hud-links" aria-hidden="true">
           <div class="leiter" id="leiter-tiefe"></div>
@@ -109,11 +94,10 @@
 
         <div class="caps">
           <div class="cap seite hero-copy" data-von="0" data-bis="0.03">
-            <p class="eyebrow"><span class="tiny-leaf" aria-hidden="true"></span>ERDSONDENBOHRUNGEN · ERDWÄRME</p>
+            <p class="eyebrow"><span class="tiny-leaf" aria-hidden="true"></span>ERDSONDENBOHRUNGEN</p>
             <h1 id="hero-title">Wärme beginnt<br>in <em>der Tiefe.</em></h1>
             <p class="intro">Unter unseren Füssen liegt Energie. <br>Mit präziser Bohrtechnik wird daraus <br>Wärme für morgen.</p>
-            <a class="primary-link" href="#leistungen">Erdsonden entdecken <span aria-hidden="true">↗</span></a>
-            <div class="copy-foot"><span class="rule"></span><span>Scrollen Sie mit in die Tiefe.</span></div>
+            <a class="primary-link" href="#leistungen"><span class="primary-text">Erdsonden entdecken</span><span class="primary-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a>
           </div>
 
           <!-- Stationen während der Bohrung (stationen.js, stationen.css). Jede hat einen eigenen Auftritt (data-stil)
@@ -224,7 +208,7 @@
             <p class="eyebrow"><span class="tiny-leaf" aria-hidden="true"></span>THERMOBOHR AG</p>
             <h2>Eine Bohrung.<br><em>Jahrzehnte Wärme.</em></h2>
             <p class="intro">Leise, unsichtbar, erneuerbar – direkt unter Ihrem Grundstück.</p>
-            <a class="primary-link" href="kontakt.html">Projekt anfragen <span aria-hidden="true">↗</span></a>
+            <a class="primary-link" href="kontakt.html"><span class="primary-text">Projekt anfragen</span><span class="primary-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg></span></a>
           </div>
         </div>
 
