@@ -1,0 +1,192 @@
+@charset "UTF-8";
+/*
+ * Thermobohr AG – Website-Version: Bühne und Bohranimation aus claude/kombiniert (kombi.css/kombi.js),
+ * dazu weisser Kopfbereich und helle Abschnitte im Stil der Codex-Seiten, Themenkarten während der Bohrung.
+ */
+:root {
+  --papier: #edf0e5;
+  --papier-hell: #f5f7f0;
+  --tinte: #183927;
+  --marke: #1d5c2e;
+  --blatt: #6aaa3a;
+  --leise: #65745e;
+  --linie-hell: #1d5c2e25;
+  --dunkel: #0d251c;
+}
+
+/* ---------- Bild-Platzhalter: figcaption nennt das gewünschte Motiv ---------- */
+.bild {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  background: #10301f;
+  aspect-ratio: 16 / 10;
+}
+.bild::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(135deg, transparent 0 14px, rgba(180, 216, 133, .06) 14px 15px);
+}
+.bild::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 64px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 40' fill='none' stroke='%2390b07a' stroke-width='1.2'%3E%3Crect x='1' y='1' width='62' height='38'/%3E%3Cpath d='M1 33 20 16l12 11 10-8 21 16'/%3E%3Ccircle cx='47' cy='10' r='4'/%3E%3C/svg%3E") no-repeat center / contain;
+  opacity: .75;
+}
+.bild figcaption {
+  position: relative;
+  z-index: 1;
+  padding: 12px 14px;
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #9db495;
+}
+/* Rotomax als drehendes 3D-Linienbild (website.js) statt Foto */
+.bild.rig { background: #0a2118; }
+.bild.rig::before, .bild.rig::after { display: none; }
+.bild.rig canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+.papier .bild:not(.rig) { background: #dbe2d1; }
+.papier .bild:not(.rig)::before { background: repeating-linear-gradient(135deg, transparent 0 14px, rgba(29, 92, 46, .07) 14px 15px); }
+.papier .bild:not(.rig)::after { filter: brightness(.75); }
+.papier .bild:not(.rig) figcaption { color: #6f8460; }
+
+/* ---------- Weisser Kopfbereich wie bei Codex ---------- */
+.website .header { background: #fff; color: var(--tinte); border-bottom: 1px solid #e3e8df; }
+.website .brand { background: #fff; isolation: auto; }
+.website .brand img { filter: none; mix-blend-mode: normal; }
+.website .hauptnav { display: flex; margin-left: auto; align-items: center; gap: 26px; font-size: 12px; }
+.website .hauptnav a { display: block; padding: 13px 0; color: var(--tinte); position: relative; white-space: nowrap; }
+.website .hauptnav a:not(.nav-kontakt)::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 5px; height: 1px; background: var(--blatt); transition: right .2s; }
+.website .hauptnav a:not(.nav-kontakt):hover::after { right: 0; }
+.website .nav-kontakt { display: flex !important; align-items: center; gap: 24px; padding: 13px 17px !important; background: var(--marke); color: #fff !important; }
+.website .nav-kontakt:hover { background: #276b38; }
+.website .nav-kontakt span { font-size: 18px; color: #cfe6b4; }
+
+.menu { display: none; margin-left: auto; position: static; }
+.menu summary { list-style: none; width: 42px; height: 42px; border: 1px solid #bac6b8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; cursor: pointer; color: var(--tinte); }
+.menu summary::-webkit-details-marker { display: none; }
+.menu summary i { display: block; width: 18px; height: 1px; background: currentColor; transition: transform .2s; }
+.menu[open] summary i:first-child { transform: translateY(3.5px) rotate(45deg); }
+.menu[open] summary i:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+.menu nav { position: absolute; left: 0; right: 0; top: 100%; display: flex; flex-direction: column; padding: 12px var(--seite) 26px; background: #fff; box-shadow: 0 15px 25px #001a1520; }
+.menu nav a { padding: 16px 0; border-bottom: 1px solid #e1e8dd; font-size: 17px; color: var(--tinte); }
+.menu nav .nav-kontakt { justify-content: space-between; margin-top: 14px; border: 0; }
+
+/* ---------- Viewer: nur 3D-Linien ---------- */
+.nur-3d { padding: 10px 12px; font-size: 10px; color: #d5e5c1; background: #b4d88512; white-space: nowrap; }
+
+/* ---------- Farben wandern mit der Tiefe ---------- */
+/* kombi.js (data-farben="tiefe") setzt an der Bühne --green (Akzent) und --buehne (Hintergrund als "r g b").
+   Alles, was den Hintergrund nachbildet, nutzt deshalb --buehne. */
+.website .caps::after { background: linear-gradient(to top, rgb(var(--buehne, 7 27 21) / .88), rgb(var(--buehne, 7 27 21) / 0)); }
+
+/* ---------- Messwerte links und rechts auf halber Höhe ---------- */
+.website .hud { top: 50%; transform: translateY(-50%); }
+
+/* Themen während der Bohrung: siehe stationen.css (claude/v006-stationen) */
+
+/* ---------- Helle und dunkle Abschnitte nach der Animation ---------- */
+.papier { background: var(--papier); color: var(--tinte); padding: 100px 7%; }
+.papier-hell { background: var(--papier-hell); }
+.papier .eyebrow { color: #71816b; }
+.papier em { color: #548544; }
+.dunkel { background: var(--dunkel); color: var(--text); padding: 100px 7%; }
+.papier h2, .dunkel h2 { font-size: clamp(36px, 3.8vw, 58px); font-weight: 400; letter-spacing: -.055em; line-height: 1.08; margin: 22px 0 0; }
+
+.abschnitt-kopf { display: flex; justify-content: space-between; align-items: flex-end; gap: 60px; margin-bottom: 50px; }
+.abschnitt-intro { max-width: 400px; margin: 0; font-size: 15px; line-height: 1.75; color: var(--leise); }
+.text-link { display: inline-flex; align-items: center; gap: 30px; padding: 10px 0; font-size: 12px; color: #376a37; border-bottom: 1px solid currentColor; white-space: nowrap; }
+.text-link span { font-size: 20px; }
+
+.karten { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; }
+.karten-3 { grid-template-columns: repeat(3, 1fr); }
+.karte { position: relative; display: flex; flex-direction: column; border-top: 1px solid var(--linie-hell); padding-top: 18px; }
+.karte .bild { margin-bottom: 20px; }
+.karte-nr { font-size: 10px; color: #6e875e; }
+.karte h3 { margin: 10px 0 10px; font-size: 22px; font-weight: 400; letter-spacing: -.035em; line-height: 1.2; color: #23432a; }
+.karte p { margin: 0; font-size: 13px; line-height: 1.7; color: var(--leise); max-width: 34ch; }
+.karte .pfeil { position: absolute; right: 0; bottom: 0; font-size: 22px; color: #6b9355; transition: transform .2s; }
+a.karte:hover h3 { color: var(--marke); }
+a.karte:hover .pfeil { transform: translate(3px, -3px); }
+.referenz .meta { font-size: 11px; color: #819078; letter-spacing: .02em; }
+
+.ablauf-raster { display: grid; grid-template-columns: .9fr 1.1fr; gap: 9%; align-items: start; }
+.ablauf-kopf .bild.hoch { aspect-ratio: 4 / 3; margin-top: 44px; }
+.schritte { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.schritte li { display: grid; grid-template-columns: 56px 1fr; gap: 20px; padding: 26px 0; border-bottom: 1px solid var(--line); }
+.schritte .num { font: italic 30px var(--serif); color: #90b571; line-height: 1; }
+.schritte h3 { margin: 0 0 8px; font-size: 21px; font-weight: 400; letter-spacing: -.03em; }
+.schritte p { margin: 0; font-size: 13px; line-height: 1.75; color: var(--muted); }
+
+.galerie { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: auto auto; gap: 24px; }
+.galerie .bild { aspect-ratio: auto; min-height: 240px; }
+.galerie .g-gross { grid-row: span 2; min-height: 504px; }
+.galerie .g-breit { grid-column: 1 / -1; min-height: 280px; }
+
+/* ---------- Fuss wie bei Codex ---------- */
+.website .site-footer { display: block; padding: 0; background: #06170f; color: #9db191; font-size: 11px; letter-spacing: normal; }
+.footer-cta { display: flex; justify-content: space-between; align-items: center; gap: 30px; padding: 70px var(--seite); border-bottom: 1px solid var(--line); }
+.footer-cta p { margin: 0 0 14px; font-size: 10px; letter-spacing: .12em; color: #7f9972; }
+.footer-cta h2 { margin: 0; font-size: clamp(30px, 3.1vw, 47px); font-weight: 400; letter-spacing: -.05em; line-height: 1.12; color: var(--text); }
+.footer-cta > a { display: flex; align-items: center; gap: 45px; padding: 16px 20px; border: 1px solid #789f5a60; font-size: 12px; color: #c3d8ac; white-space: nowrap; }
+.footer-cta > a:hover { background: #8db66e17; }
+.footer-cta > a span { font-size: 24px; color: var(--green); }
+.footer-main { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 35px; padding: 50px var(--seite); }
+.footer-firma img { display: block; width: 200px; height: auto; background: #fff; padding: 4px 10px; }
+.footer-firma p { margin: 18px 0 0; font-size: 11px; line-height: 1.9; color: #78906d; }
+.footer-spalte > p { margin: 0 0 18px; font-size: 8px; letter-spacing: .14em; color: #6f8964; }
+.footer-spalte a { display: block; margin-bottom: 12px; font-size: 11px; color: #a4b69a; }
+.footer-spalte a:hover { color: #d3e7bd; }
+.footer-bottom { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 20px var(--seite); border-top: 1px solid var(--line); font-size: 9px; color: #647e59; }
+.footer-bottom div { display: flex; gap: 25px; }
+.footer-bottom a:hover { color: #b8d098; }
+
+/* ---------- Responsiv ---------- */
+@media (max-width: 1180px) {
+  .website .hauptnav { gap: 18px; font-size: 11px; }
+  .karten { grid-template-columns: repeat(2, 1fr); gap: 40px 28px; }
+}
+@media (max-width: 1000px) {
+  .website .hauptnav { display: none; }
+  .menu { display: block; }
+}
+@media (max-width: 900px) {
+  .website .header nav.hauptnav { display: none; }
+  /* Messwerte auf halber Höhe, Ebenenname darf umbrechen */
+  .website .hud { top: 50%; bottom: auto; }
+  .website .sub { white-space: normal; max-width: 92px; line-height: 1.4; }
+
+  .papier, .dunkel { padding: 64px 6%; }
+  .abschnitt-kopf { display: block; margin-bottom: 34px; }
+  .abschnitt-intro { margin-top: 18px; font-size: 14px; }
+  .abschnitt-kopf .text-link { margin-top: 22px; }
+  .karten-3 { grid-template-columns: 1fr 1fr; }
+  .ablauf-raster { grid-template-columns: 1fr; gap: 34px; }
+  .ablauf-kopf .bild.hoch { margin-top: 30px; }
+  .footer-cta { display: block; padding: 50px 6%; }
+  .footer-cta > a { display: inline-flex; margin-top: 26px; }
+  .footer-main { grid-template-columns: 1fr 1fr; padding: 40px 6%; }
+  .footer-firma { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; padding: 20px 6%; }
+}
+@media (max-width: 600px) {
+  .karten, .karten-3 { grid-template-columns: 1fr; gap: 34px; }
+  .galerie { grid-template-columns: 1fr; }
+  .galerie .g-gross { grid-row: auto; min-height: 280px; }
+  .galerie .bild { min-height: 200px; }
+  .schritte li { grid-template-columns: 40px 1fr; gap: 14px; padding: 22px 0; }
+  .schritte .num { font-size: 24px; }
+}
+@media (max-width: 380px) {
+  .website .header nav.hauptnav { display: none; }
+}

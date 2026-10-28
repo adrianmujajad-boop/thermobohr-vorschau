@@ -1,0 +1,231 @@
+@charset "UTF-8";
+/* Kombinierte Fassung: Gestaltung von Codex (Codex/style.css), Scroll-Bühne von Claude (claude/bohranimation). */
+:root {
+  --bg: #071b15;
+  --line: rgba(184, 211, 175, .16);
+  --text: #eff2e9;
+  --muted: #a0b0a3;
+  --green: #b4d885;
+  --blau: #8fd0e6;
+  --warm: #f2b46a;
+  --sans: Arial, Helvetica, sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --seite: 5.4%;
+  color-scheme: dark;
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  font-synthesis: none;
+  scroll-behavior: smooth;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); overflow-x: hidden; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+button:focus-visible, a:focus-visible, canvas:focus-visible { outline: 2px solid var(--green); outline-offset: 5px; }
+button[disabled] { opacity: .3; cursor: default; }
+button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+[hidden] { display: none !important; }
+::selection { background: #b4d885; color: #071b15; }
+
+/* ---------- Kopfzeile (liegt über der Bühne und scrollt mit weg) ---------- */
+.header { position: absolute; inset: 0 0 auto 0; z-index: 20; height: 105px; padding: 0 var(--seite); display: flex; align-items: center; border-bottom: 1px solid var(--line); gap: 38px; }
+.brand { width: 256px; height: 44px; overflow: hidden; display: block; flex-shrink: 0; background: var(--bg); isolation: isolate; }
+.brand img { display: block; max-width: none; margin-top: -21px; filter: invert(1) hue-rotate(180deg) brightness(1.15); mix-blend-mode: screen; }
+.brand-note { font-size: 11px; color: var(--muted); border-left: 1px solid var(--line); padding-left: 29px; letter-spacing: .01em; }
+.header nav { display: flex; margin-left: auto; align-items: center; gap: 36px; font-size: 12px; }
+.header nav a, .source-link { display: flex; gap: 24px; align-items: center; }
+.header nav a:hover, .source-link:hover { color: var(--green); }
+.source-link { border: 0; background: none; padding: 12px 0; }
+.header nav span { font-size: 17px; color: var(--green); }
+
+/* ---------- Scroll-Bühne ---------- */
+.bohrung { position: relative; height: 1100vh; }
+.stage { position: sticky; top: 0; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; }
+#szene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; }
+.stage:has(.viewer.an) #szene { cursor: grab; }
+#szene.zieht { cursor: grabbing !important; }
+
+/* Ein- und Ausblenden aller zeitgesteuerten Elemente (Klasse .an setzt kombi.js) */
+[data-von] { opacity: 0; visibility: hidden; transition: opacity .6s ease, transform .6s ease, visibility 0s .6s; }
+[data-von].an { opacity: 1; visibility: visible; transition: opacity .6s ease, transform .6s ease, visibility 0s; }
+
+/* Geräteansicht rechts – Rahmen des Codex-Viewers über dem Canvas */
+.viewer { position: absolute; left: 43.5%; right: var(--seite); top: 133px; bottom: 92px; display: flex; flex-direction: column; pointer-events: none; z-index: 3; }
+.viewer-heading { display: flex; align-items: center; justify-content: space-between; height: 27px; color: #829c87; font-size: 8px; letter-spacing: .12em; }
+.viewer-heading > span:first-child { display: flex; align-items: center; gap: 8px; color: #bed0b6; }
+.live-dot { width: 4px; height: 4px; display: inline-block; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px #b4d88555; }
+.viewer-flaeche { position: relative; flex: 1; }
+.viewer-note { position: absolute; left: 50%; bottom: 13px; transform: translateX(-50%); font-size: 9px; color: #809784; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
+.drag-mark { font-size: 17px; line-height: 1; }
+.scale-note { position: absolute; right: 0; bottom: 48px; font-size: 7px; letter-spacing: .13em; color: #5e7b66; writing-mode: vertical-rl; }
+.viewer-toolbar { height: 53px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #071b15cc; pointer-events: auto; }
+.modes { display: flex; gap: 5px; }
+.mode { padding: 10px 12px; font-size: 10px; color: #8ca18d; border: 0; background: transparent; white-space: nowrap; transition: background .2s, color .2s; }
+.mode.active { color: #d5e5c1; background: #b4d88512; }
+.mode:hover { color: #d5e5c1; }
+.wire-icon { margin-right: 7px; font-size: 16px; vertical-align: -1px; }
+.tools { display: flex; align-items: center; gap: 2px; }
+.tool { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; color: #9db495; background: none; font-size: 20px; }
+.tool:hover { color: #d5e5c1; background: #b4d88512; }
+.tool[aria-pressed=true] { color: var(--green); background: #b4d8851c; }
+.viewer-caption { font-size: 8px; letter-spacing: .015em; color: #6e8a75; line-height: 1.5; margin: 10px 0 0; }
+
+/* Bildkonturen / Original an der Stelle des Geräts */
+.vorlage { position: absolute; left: 43.5%; right: var(--seite); top: 160px; bottom: 175px; pointer-events: none; z-index: 2; }
+.stage:not([data-mode="3d"]) .vorlage { background: var(--bg); }
+.vorlage img { width: 100%; height: 100%; object-fit: contain; }
+.original-image { filter: drop-shadow(0 12px 25px #0005); }
+
+/* ---------- Texte ---------- */
+.eyebrow { font-size: 10px; letter-spacing: .15em; font-weight: 500; line-height: 1.6; margin: 0; color: var(--muted); display: flex; align-items: center; gap: 10px; }
+.tiny-leaf { display: inline-block; width: 12px; height: 8px; border: 1px solid var(--green); border-radius: 9px 0 9px 0; transform: rotate(-28deg); }
+h1, .finale h2 { font-size: clamp(64px, 6.35vw, 108px); font-weight: 400; letter-spacing: -.065em; line-height: 1.02; margin: 31px -35px 26px 0; }
+em { font-family: var(--serif); font-weight: 400; color: var(--green); letter-spacing: -.065em; }
+h1 em, .finale h2 em { white-space: nowrap; }
+.intro { font-size: 15px; line-height: 1.8; color: var(--muted); margin: 0; }
+.primary-link { display: inline-flex; align-items: center; justify-content: space-between; gap: 35px; padding: 17px 21px; color: #14291b; background: var(--green); font-size: 12px; margin-top: 32px; transition: background .2s, transform .2s; }
+.primary-link:hover { background: #c6e59e; transform: translateY(-2px); }
+.primary-link span { font-size: 21px; line-height: 1; }
+.copy-foot { margin-top: 63px; color: #7f9786; font-size: 10px; display: flex; align-items: center; gap: 12px; }
+.rule { height: 1px; width: 25px; background: #618266; }
+
+.caps { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
+.caps::after { content: ""; position: absolute; inset: auto 0 0 0; height: 34vh; background: linear-gradient(to top, #071b15e0, #071b1500); z-index: -1; }
+.cap { position: absolute; left: 50%; bottom: clamp(70px, 13vh, 140px); width: min(760px, calc(100% - 32px)); text-align: center; transform: translate(-50%, 14px); }
+.cap.an { transform: translate(-50%, 0); }
+.cap .z1 { margin: 0; font-size: clamp(24px, 2.6vw, 40px); letter-spacing: -.045em; line-height: 1.1; color: var(--text); text-wrap: balance; }
+.cap .z1 em { letter-spacing: -.04em; }
+.cap .z2 { margin: 12px 0 0; font-size: clamp(13px, 1.1vw, 15px); line-height: 1.6; color: var(--muted); text-wrap: balance; }
+.cap .z2.blau { color: var(--blau); }
+.cap .z2.warm { color: var(--warm); }
+
+/* Intro und Schluss stehen links wie der Hero von Codex */
+.cap.seite { left: var(--seite); top: 105px; bottom: auto; width: min(560px, 38vw); text-align: left; padding-top: clamp(90px, 11.5vh, 150px); transform: translate(0, 14px); }
+.cap.seite.an { transform: none; pointer-events: auto; }
+.cap.finale { top: 50%; padding-top: 0; transform: translate(0, calc(-50% + 14px)); }
+.cap.finale.an { transform: translate(0, -50%); }
+.finale h2 { font-size: clamp(48px, 5vw, 84px); }
+
+/* Hinweis unten wie bei Codex */
+.scroll-cue { position: absolute; bottom: 26px; left: var(--seite); right: var(--seite); border-top: 1px solid var(--line); display: flex; align-items: center; gap: 25px; padding-top: 18px; z-index: 5; transition: opacity .5s; }
+.scroll-cue span { font-size: 8px; letter-spacing: .15em; color: #8da18e; }
+.scroll-cue span:last-child { font-size: 17px; color: var(--green); line-height: 1; animation: hinweis 2.2s ease-in-out infinite; }
+@keyframes hinweis { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+.weg { opacity: 0 !important; pointer-events: none; }
+.ueberspringen { position: absolute; right: var(--seite); bottom: 26px; z-index: 5; font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: #8da18e; padding-top: 18px; }
+.ueberspringen:hover { color: var(--green); }
+
+/* ---------- Anzeige Tiefe / Temperatur ---------- */
+.hud { position: absolute; top: 44%; display: flex; align-items: flex-start; gap: 12px; font-variant-numeric: tabular-nums; pointer-events: none; z-index: 3; transition: opacity .5s; }
+.stage:has(.viewer.an) .hud, .stage:has(.finale.an) .hud { opacity: 0; }
+.hud-links { left: var(--seite); }
+.hud-rechts { right: var(--seite); flex-direction: row-reverse; text-align: right; }
+.leiter { display: flex; flex-direction: column; gap: 4px; padding-top: 7px; }
+.leiter i { display: block; width: 16px; height: 1px; background: rgba(184, 211, 175, .16); transition: background .25s; }
+.leiter i.an { background: var(--green); }
+.hud-rechts .leiter i.an { background: var(--warm); }
+.wert { font-size: 22px; letter-spacing: -.04em; color: var(--text); white-space: nowrap; }
+.wert b { font-weight: 400; }
+.sub { margin-top: 7px; font-size: 8px; letter-spacing: .15em; text-transform: uppercase; color: #8da18e; white-space: nowrap; }
+
+/* ---------- Technologie (Codex) ---------- */
+.technology { padding: 110px 8% 100px; background: #e8eddf; color: #183927; display: grid; grid-template-columns: 1fr 1.05fr; gap: 10%; }
+.technology .eyebrow { color: #5c715c; }
+.section-heading h2 { font-size: clamp(42px, 4vw, 65px); font-weight: 400; letter-spacing: -.055em; line-height: 1.06; margin: 27px 0 0; }
+.section-heading h2 em { color: #518244; }
+.section-intro { font-size: 19px; line-height: 1.55; margin: 0 0 36px; color: #36523a; max-width: 510px; }
+.steps { list-style: none; margin: 0; padding: 0; }
+.steps li { border-top: 1px solid #193f2928; padding: 24px 0; display: flex; gap: 23px; align-items: baseline; }
+.steps li > span:first-child { font-size: 9px; color: #718269; }
+.steps li > span:last-child { margin-left: auto; font-size: 20px; color: #6b9355; }
+.steps h3 { font-size: 16px; margin: 0 0 9px; font-weight: 400; letter-spacing: -.02em; }
+.steps p { font-size: 12px; line-height: 1.65; color: #687960; max-width: 330px; margin: 0; }
+.source-note { font-size: 9px; line-height: 1.8; color: #7f8c74; margin: 24px 0 0; }
+.source-note a { border-bottom: 1px solid #7f8c7466; }
+footer { padding: 30px var(--seite); display: flex; justify-content: space-between; gap: 20px; color: #8ca18d; font-size: 9px; letter-spacing: .06em; }
+footer > a:first-child { color: #c4d7bc; }
+footer > a:hover { color: var(--green); }
+
+dialog { max-width: 780px; width: calc(100% - 36px); max-height: 90svh; overflow: auto; background: #0d251c; color: var(--text); border: 1px solid #45633f; padding: 30px; }
+dialog::backdrop { background: #010c09cc; backdrop-filter: blur(8px); }
+.dialog-header { display: flex; justify-content: space-between; gap: 15px; }
+.dialog-header h2 { font-size: 27px; font-weight: 400; letter-spacing: -.04em; margin: 10px 0 24px; }
+.dialog-header .tool { flex-shrink: 0; }
+.source-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.source-comparison figure { margin: 0; border: 1px solid var(--line); padding: 15px; }
+.source-comparison img { width: 100%; height: 370px; object-fit: contain; }
+.source-comparison figcaption { font-size: 9px; color: var(--muted); padding-top: 15px; border-top: 1px solid var(--line); }
+dialog > p { font-size: 11px; line-height: 1.8; color: var(--muted); margin: 22px 0 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 1100px) {
+  :root { --seite: 4%; }
+  .header { gap: 24px; }
+  .brand-note { display: none; }
+  .header nav { gap: 26px; }
+  h1 { font-size: 7.1vw; }
+  .viewer-toolbar { flex-wrap: wrap; height: auto; min-height: 53px; padding: 6px 0; gap: 0; }
+  .mode { padding: 10px 8px; font-size: 9px; }
+  .tool { width: 25px; }
+  .technology { padding: 85px 6%; gap: 7%; }
+}
+
+/* Unter 900 px (wie die Kamera in kombi.js): Text oben, Gerät darunter */
+@media (max-width: 900px) {
+  :root { --seite: 6%; }
+  .header { height: 82px; gap: 12px; }
+  .brand { width: 213px; height: 37px; }
+  .brand img { width: 213px; height: 71px; margin-top: -17px; }
+  .header nav a { font-size: 9px; gap: 8px; white-space: nowrap; }
+  .source-link { display: none; }
+  .cap.seite { top: 82px; left: var(--seite); right: var(--seite); width: auto; padding-top: 34px; }
+  .cap.finale { top: 90px; transform: translate(0, 14px); }
+  .cap.finale.an { transform: none; }
+  .eyebrow { font-size: 8px; letter-spacing: .12em; }
+  h1, .finale h2 { font-size: clamp(44px, 11vw, 76px); margin: 18px 0 14px; letter-spacing: -.06em; }
+  .intro { font-size: 13px; line-height: 1.7; max-width: 320px; }
+  .intro br { display: none; }
+  .primary-link { margin-top: 18px; font-size: 11px; padding: 14px 17px; gap: 30px; }
+  .copy-foot, .viewer-heading, .viewer-caption, .scale-note, .ueberspringen { display: none; }
+  .viewer { left: var(--seite); top: auto; bottom: 64px; height: auto; }
+  .viewer-flaeche { flex: none; height: 30px; }
+  .viewer-note { bottom: 8px; font-size: 8px; }
+  .viewer-toolbar { height: 50px; flex-wrap: nowrap; gap: 4px; }
+  .modes { gap: 0; }
+  .mode { padding: 9px; font-size: 9px; }
+  .wire-icon { margin-right: 4px; }
+  .vorlage { left: var(--seite); top: 52%; bottom: 150px; }
+  .scroll-cue { bottom: 18px; padding-top: 12px; }
+  .hud { top: auto; bottom: 30%; }
+  .cap { bottom: clamp(70px, 14vh, 120px); }
+  .technology { padding: 65px 6%; grid-template-columns: 1fr; gap: 38px; }
+  .section-heading h2 { font-size: 46px; margin-top: 21px; }
+  .section-intro { font-size: 17px; margin-bottom: 30px; max-width: 460px; }
+  .steps li { gap: 19px; padding: 22px 0; }
+  .steps li > span:last-child { display: none; }
+  footer { padding: 25px var(--seite); flex-wrap: wrap; font-size: 8px; row-gap: 18px; }
+  footer span { order: 3; width: 100%; }
+  .source-comparison { gap: 10px; }
+  .source-comparison figure { padding: 9px; }
+  .source-comparison img { height: 290px; }
+  .source-comparison figcaption { font-size: 7px; }
+  .dialog-header h2 { font-size: 23px; }
+  dialog { padding: 20px; }
+}
+@media (max-width: 520px) {
+  .wert { font-size: 17px; }
+  .sub { font-size: 7px; }
+  .leiter { display: none; }
+  .mode { padding: 9px 6px; }
+  .tools .tool { width: 26px; }
+}
+@media (max-width: 380px) {
+  .header nav { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}

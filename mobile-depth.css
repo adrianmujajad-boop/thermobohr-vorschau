@@ -1,0 +1,11 @@
+/* v004: retain the depth tick scale on phones instead of hiding it below 520 px. */
+@media(max-width:520px){
+ .website .hud-links{gap:7px;left:4%}
+ .website .hud-links .leiter{display:flex;gap:3px;padding-top:5px}
+ .website .hud-links .leiter i{width:7px;height:1px;background:rgba(184,211,175,.34)}
+ .website .hud-links .leiter i:nth-child(5n+1){width:11px}
+ .website .hud-links .leiter i.an{background:var(--green)}
+ .website .hud-links .wert{font-size:17px}
+ .website .hud-links .sub{max-width:76px;white-space:normal;line-height:1.5;font-size:6px;letter-spacing:.065em}
+ .website .hud-rechts{right:4%}
+}
