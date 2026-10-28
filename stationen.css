@@ -20,7 +20,8 @@
 /* ---------- Zeilen über der Bohrung (Hero, 500 m, Gestänge): folgen dem Scrollen statt einer Zeitblende ---------- */
 [data-von]:not(.thema), [data-von]:not(.thema).an { opacity: var(--cap-mix, 0); transition: visibility 0s; }
 .cap:not(.seite), .cap:not(.seite).an { transform: translate(-50%, calc((1 - var(--cap-mix, 0)) * 14px)); }
-.cap.seite:not(.finale), .cap.seite:not(.finale).an { transform: translateY(calc((1 - var(--cap-mix, 0)) * -12px)); }
+/* Hero-Text liegt ruhig und blendet nur aus, wie der Schluss nur einblendet */
+.cap.seite:not(.finale), .cap.seite:not(.finale).an { transform: none; }
 
 /* Hero: dunkler Verlauf hinter dem Titel wie im Schluss (.closing-sheet), die Landschaft tritt dort zurück */
 .hero-grund { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(var(--buehne, 7 27 21) / .94) 0%, rgb(var(--buehne, 7 27 21) / .84) 34%, rgb(var(--buehne, 7 27 21) / 0) 53%); }

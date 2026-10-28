@@ -377,6 +377,8 @@
     // Gesamtansicht so weit weg, dass der Block neben (breit) bzw. unter (schmal) den Text passt
     const ovDist = breit ? Math.max(ENDTIEFE * .7 / tanV, 135 / (tanV * asp * 0.62)) : Math.max(ENDTIEFE / tanV, 135 / (tanV * asp * 0.74));
     const fahrt = kamerafahrt(p, z, ovDist);
+    // Schmal steht der Hero-Text über dem Gerät: die Kamera fährt erst los, wenn der Text fast ausgeblendet ist
+    const los = breit ? 0.012 : 0.035;
     let c;
     if (REDUZIERT) {
       // Bei reduzierter Bewegung bleibt die ruhige Kamera von v006: nah am Bohrkopf, dann zwei Gesamtansichten
@@ -384,15 +386,15 @@
       const nah = { dist: asp < 0.8 ? 30 : 24, lookY: -z.bohrtiefe + lerp(4.5, 1.3, kopfAnsicht), yaw: lerp(.16, .48, kopfAnsicht), pitch: lerp(.05, -.32, kopfAnsicht) };
       const mittel = { dist: Math.max(210, ovDist * 0.45), lookY: -ENDTIEFE * .68, yaw: 0.42, pitch: 0.12 };
       const ende = { dist: ovDist * 1.02, lookY: -ENDTIEFE * .488, yaw: 0.78, pitch: 0.2 };
-      c = mische(geraet, nah, smooth(range(p, 0.012, 0.13)));
+      c = mische(geraet, nah, smooth(range(p, los, 0.13)));
       c = mische(c, mittel, smooth(range(p, 0.645, 0.73)));
       c = mische(c, ende, smooth(range(p, 0.8, 0.93)));
     } else {
       // Vom Gerät fährt die Kamera der Spindel entlang ins Bohrloch, danach von Einstellung zu Einstellung
-      c = mische(geraet, fahrt, smooth(range(p, 0.012, 0.13)));
+      c = mische(geraet, fahrt, smooth(range(p, los, 0.13)));
     }
     // Im Intro steht das Gerät rechts neben dem Text (mobil darunter)
-    const intro = 1 - smooth(range(p, 0.012, 0.07)), schluss = smooth(range(p, 0.89, 0.95));
+    const intro = 1 - smooth(range(p, los, los + 0.058)), schluss = smooth(range(p, 0.89, 0.95));
     c.ox = (breit ? W * 0.19 * intro : 0) + W * fahrt.kx * (1 - schluss);
     c.oy = (breit ? 0 : H * 0.15 * intro) + H * fahrt.ky * (1 - schluss);
     // Am Schluss passen Gerät und Erdblock in den freien Bereich neben (breit) bzw. unter (schmal) dem Text.
@@ -1196,31 +1198,6 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   }
 
-  // Wärme im Boden: Im Hero glimmt das Gelände rund um den Bohrpunkt leicht warm – die Wärme, um die es geht.
-  // Nur im Gelände (unterhalb des Horizonts), die grünen Linien der Landschaft liegen darüber. Beim Eintauchen
-  // blendet der Schimmer aus, dann übernehmen die mit der Tiefe wärmer werdenden Farben.
-  function bodenWaerme(p) {
-    const a = 1 - smooth(range(p, 0.02, 0.08));
-    if (a < 0.01) return;
-    const fuss = projiziere(0, 0, 0), tief = projiziere(0, -40, 0);
-    const hl = Math.hypot(K.px, K.pz) || 1, horizont = projiziere(-K.px / hl * 160, 0, -K.pz / hl * 160);
-    if (!fuss || !tief || !horizont) return;
-    const r = Math.max(160, (tief.y - fuss.y) * 0.9);
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, horizont.y, W, H - horizont.y);
-    ctx.clip();
-    ctx.translate(fuss.x, fuss.y + r * 0.18);
-    ctx.scale(2, 1);
-    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-    g.addColorStop(0, `rgba(240,168,92,${(0.3 * a).toFixed(3)})`);
-    g.addColorStop(0.5, `rgba(214,138,70,${(0.1 * a).toFixed(3)})`);
-    g.addColorStop(1, 'rgba(214,138,70,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(-r, -r, 2 * r, 2 * r);
-    ctx.restore();
-  }
-
   // Haltung: ein Lot neben der Bohrung, von einer Aufhängung über dem Gelände bis auf die Tiefe des Bohrkopfs
   const LOT_X = 14;
   function lotlinie(a, z) {
@@ -1411,7 +1388,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   function landschaft(p, grund) {
     const a = smooth(range(K.py, 3, 16));
     if (a < 0.01 || !RIG) return;
-    const T = p < 0.035 ? textRahmen || (textRahmen = textMessen()) : null;   // Hero-Text, solange er zu sehen ist
+    const T = p < 0.065 ? textRahmen || (textRahmen = textMessen()) : null;   // Hero-Text, solange er zu sehen ist
     const schluessel = [K.px, K.py, K.pz, K.fx, K.fy, K.fz, K.f, K.cx, K.cy, canvas.width, canvas.height, T ? T.x1 : -1, T ? T.y0 : -1, T ? T.y1 : -1].map(v => v.toFixed(2)).join('|');
     if (schluessel === landSchluessel) ruhig++; else { landSchluessel = schluessel; ruhig = 0; }
     ctx.save();
@@ -1421,12 +1398,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       if (landBildSchluessel !== schluessel) { landBildSchluessel = schluessel; landZeichnen(T); }
       ctx.drawImage(landBild, 0, 0, W, H);
     } else {
-      if (T) {   // den Hero-Text aussparen (hart, er blendet ohnehin gerade aus)
-        ctx.beginPath();
-        ctx.rect(0, 0, W, H);
-        ctx.rect(T.x0 - 30, T.y0 - 30, T.x1 - T.x0 + 70, T.y1 - T.y0 + 60);
-        ctx.clip('evenodd');
-      }
+      // Hinter dem Hero-Text liegt dabei der dunkle Verlauf (.hero-grund), der mit dem Text gemeinsam ausblendet
       reliefZeichnen(ctx, grund, false);
     }
     ctx.restore();
@@ -1551,7 +1523,6 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.fillStyle = grund;
     ctx.fillRect(0, 0, W, H);
     geraetProjizieren();
-    bodenWaerme(p);
     if (ansicht === '3d') landschaft(p, grund);
     // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
     // er erscheint, sobald die Kamera der Spindel nach unten folgt.
@@ -1596,7 +1567,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   // Die Stationen (.thema) führt stationen.js.
   const caps = [...document.querySelectorAll('[data-von]')]
     .filter(el => !el.classList.contains('thema'))
-    .map(el => ({ el, von: +el.dataset.von, bis: +el.dataset.bis, an: false, mix: '' }));
+    .map(el => ({ el, von: +el.dataset.von, bis: +el.dataset.bis, aus: +el.dataset.aus || .012, an: false, mix: '' }));
   const hinweis = document.querySelector('.scroll-cue');
   let hudAlt = '', leiterAlt = '';
 
@@ -1643,7 +1614,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     const springt = window.ThermobohrStationen && window.ThermobohrStationen.springt();
     for (const c of caps) {
       const ein = c.von <= 0 ? 1 : smooth(range(p, c.von, c.von + .012));
-      const mix = springt && c.von > 0 ? 0 : ein * (1 - smooth(range(p, c.bis - .012, c.bis)));
+      const mix = springt && c.von > 0 ? 0 : ein * (1 - smooth(range(p, c.bis - c.aus, c.bis)));
       const an = mix > .01;
       if (an !== c.an) { c.an = an; c.el.classList.toggle('an', an); }
       const css = mix.toFixed(3);
