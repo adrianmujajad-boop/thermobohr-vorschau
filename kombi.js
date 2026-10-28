@@ -1490,6 +1490,13 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       ausgeben();
       ctx.globalCompositeOperation = 'source-over';
     }
+    // Schluss: die Bohrkrone sitzt wieder unten an der Spindel im Bohrloch, wie beim Einstieg, und dreht langsam
+    if (end > 0.02 && ansicht === '3d') {
+      ctx.globalCompositeOperation = 'lighter';
+      bohrkopfAlternative(smooth(end), 0, .2 + zeit * .35, 6);
+      ausgeben();
+      ctx.globalCompositeOperation = 'source-over';
+    }
     // In der Geräteansicht bleibt der Untergrund unsichtbar (ruhiger Hero);
     // er erscheint, sobald die Kamera der Spindel nach unten folgt.
     ctx.globalAlpha = smooth(range(p, 0.008, 0.06)) * (1 - end);
@@ -1720,7 +1727,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     }
 
     if (NUTZER.auto && !ziehen) NUTZER.yaw += dt * 0.12;
-    if (FARBEN) farbenNachTiefe(z.bohrtiefe / ENDTIEFE);
+    if (FARBEN) farbenNachTiefe(z.bohrtiefe / ENDTIEFE * (1 - abschluss3DMix(p)));   // am Schluss wieder das Grün des Anfangs
     const kam = kameraZustand(p, z);
     if (EINSTIEG && EINSTIEG.active) EINSTIEG.setCamera(kam);
     kam.oy -= hebung;
@@ -1763,7 +1770,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     vorschau(wert) {
       p = clamp(wert, 0, 1);
       const z = zustand(p);
-      if (FARBEN) farbenNachTiefe(z.bohrtiefe / ENDTIEFE);
+      if (FARBEN) farbenNachTiefe(z.bohrtiefe / ENDTIEFE * (1 - abschluss3DMix(p)));   // am Schluss wieder das Grün des Anfangs
       const kam = kameraZustand(p, z);
       kam.oy -= hebung;
       kameraSetzen(kam);

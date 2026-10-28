@@ -32,6 +32,12 @@
 /* Hero: «der Tiefe.» verläuft von Grün in warmes Bernstein – in der Tiefe wird es warm */
 .hero-copy h1 em { background: linear-gradient(90deg, var(--green) 10%, color-mix(in srgb, var(--warm) 85%, var(--green)) 95%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .12em; margin-right: -.12em; }
 
+/* Schluss ohne Einleitungstext und ohne Drehknöpfe (ending-app.js erzeugt sie noch; ausgeblendet, nicht fokussierbar) */
+#ending-panel .closing-intro, #ending-panel .closing-controls { display: none !important; }
+#ending-panel .closing-actions { margin-top: 34px; }
+/* Schluss: «wird Wärme.» mit demselben Verlauf von Grün in Bernstein */
+.closing-title .block:last-child { width: fit-content; background: linear-gradient(90deg, #b4d885 10%, color-mix(in srgb, var(--warm) 85%, #b4d885) 95%); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .06em; margin-right: -.06em; }
+
 /* Strichleiter neben Tiefe und Temperatur nur, solange gebohrt wird (kombi.js setzt --leiter) */
 .hud .leiter { opacity: var(--leiter, 0); }
 /* Schmal stehen die Tiefenmarken der Gesamtansicht dort, wo sonst die Messwerte sind: die Zeile nennt die Werte ohnehin */
