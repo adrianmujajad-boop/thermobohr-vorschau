@@ -268,7 +268,7 @@
       // 02 Grundwasser: auf Augenhöhe, die Wasserlinien laufen quer durchs Bild
       case 'wasserlinie': return { dist: 36, lookY: -GW_SPIEGEL - (z.bohrtiefe - GW_SPIEGEL) * .5, yaw: .06 + .14 * t, pitch: .03 };
       // 03 Maschinenpark: ganz nah von unten an die Bohrkrone, langsam umkreisend
-      case 'makro': return { dist: hoch ? 16 : 11, lookY: -z.meissel + 1.5, yaw: .7 + 1.1 * t, pitch: -.36 };
+      case 'makro': return { dist: (hoch ? 16 : 11) * Math.max(1, 1.75 / (W / H)), lookY: -z.meissel + 1.5, yaw: .7 + 1.1 * t, pitch: -.36 };
       // 04 Erdwärme: weite Kreisfahrt um die Bohrung, die Schichten werden räumlich
       case 'orbit': return { dist: hoch ? 125 : 105, lookY: -z.bohrtiefe + (quer ? 8 : 22), yaw: 1.7 + 1.2 * t, pitch: .2 };
       // 05 Planung: gerade Seitenansicht wie eine Planzeichnung, dazu ein Massstab (massstab())
@@ -285,10 +285,16 @@
         const d = ovDist * 1.02, y = -ENDTIEFE * .5;
         return { dist: d, lookY: y, yaw: .72 + .1 * t, pitch: Math.asin(clamp((80 - y) / d, 0, .7)) };
       }
-      // 07 Sonde: mit dem Sondenfuss in die Tiefe
-      case 'sonde': return { dist: 34, lookY: -z.sonde + 5, yaw: -.55 + .45 * t, pitch: .3 };
-      // 08 Hinterfüllung: mit dem Verpressspiegel nach oben
-      case 'verpressen': return { dist: 32, lookY: -ENDTIEFE * (1 - z.verpressung) - 2, yaw: .25 + .4 * t, pitch: .1 };
+      // 07 Sonde: erhöhte Gesamtansicht von links, die weisse Sonde läuft durch die ganze Bohrung hinunter
+      case 'sonde': {
+        const d = ovDist * (hoch ? .95 : .85), y = -ENDTIEFE * .5;
+        return { dist: d, lookY: y, yaw: -.45 + .2 * t, pitch: Math.asin(clamp((90 - y) / d, 0, .7)) };
+      }
+      // 08 Hinterfüllung: erhöhte Gesamtansicht von rechts, die Verpressung steigt von unten bis an die Oberfläche
+      case 'verpressen': {
+        const d = ovDist * (hoch ? .95 : .85), y = -ENDTIEFE * .5;
+        return { dist: d, lookY: y, yaw: .95 - .2 * t, pitch: Math.asin(clamp((90 - y) / d, 0, .7)) };
+      }
       // Tauchfahrt: der Spindel entlang ins Bohrloch (wie bisher)
       default: return { dist: hoch ? 30 : 24, lookY: -z.bohrtiefe + 4.5, yaw: .16, pitch: .05 };
     }
@@ -311,14 +317,17 @@
     gewicht.tauchen = 1;
     let vorherBis = KAMERA_FENSTER.length ? KAMERA_FENSTER[0].von - .03 : 1;
     for (const f of KAMERA_FENSTER) {
-      const t = smooth(range(p, vorherBis - UEBERGANG_VOR, f.von + UEBERGANG_NACH));
+      const u = range(p, vorherBis - UEBERGANG_VOR, f.von + (f.thema ? UEBERGANG_NACH : 0));
+      const t = smooth(u);
       if (t <= 0) break;
       const ziel = einstellung(f.name, z, range(p, f.von, f.bis), ovDist, hoch, quer);
+      // Beim Heranfahren zielt der Blick zuerst aufs Motiv, beim Wegfahren bleibt er zuerst darauf
+      const tBlick = ziel.dist < c.dist ? smooth(Math.min(1, u * 2)) : smooth(Math.max(0, u * 2 - 1));
       // Bei reduzierter Bewegung kein seitlicher Versatz von Station zu Station (quer stehen dann alle Stationen links)
       const kx = quer ? (f.thema && f.rechts && !REDUZIERT ? -.2 : .2) : schmal || REDUZIERT ? 0 : f.thema ? (f.rechts ? -.065 : .065) : 0;
       const ky = quer ? querY : schmal ? -.12 : f.thema || REDUZIERT ? 0 : -.1;
       const kxAlt = c.kx, kyAlt = c.ky;
-      c = mische(c, ziel, t);
+      c = mische(c, ziel, t, tBlick);
       c.kx = lerp(kxAlt, kx, t);
       c.ky = lerp(kyAlt, ky, t);
       for (const k in gewicht) gewicht[k] *= 1 - t;
@@ -511,7 +520,8 @@
       ziel.oy = (rahmen.oben + rahmen.unten - box.y0 - box.y1) / 2;
     }
 
-    const gemischt = mische(c, ziel, t);
+    // Der Blick schwenkt zuerst aufs Gerät, dann fährt die Kamera heran (claude/v006-stationen)
+    const gemischt = mische(c, ziel, t, smooth(Math.min(1, range(p, 0.89, 0.95) * 1.8)));
     gemischt.ox = lerp(c.ox || 0, ziel.ox, t);
     gemischt.oy = lerp(c.oy || 0, ziel.oy, t);
     return gemischt;
@@ -1524,7 +1534,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     gluehenMeissel();
     // Bei reduzierter Bewegung bleibt die Kamera in der Gesamtansicht: Beschriftung tritt hinter die Stationen zurück
     beschriftung(ov * smooth(range(p, 0.005, 0.06)) * (1 - end) * (REDUZIERT ? 1 - stationsAnteil(p) : 1), 1 - (gewicht.lot || 0));
-    if (!REDUZIERT) massstabText((gewicht.plan || 0) * (1 - end));
+    if (!REDUZIERT) massstabText(smooth(range(gewicht.plan || 0, .7, 1)) * (1 - end));
     // Nah an der Bohrung tritt das Gerät etwas zurück, damit die Texte lesbar bleiben
     // Bildkonturen / Original ersetzen das Gerät in der Geräteansicht
     if (ansicht === '3d') bohrgeraet(lerp(lerp(1, 0.6, smooth(range(p, 0.04, 0.1))), 1, end));
@@ -1588,7 +1598,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     }
     const springt = window.ThermobohrStationen && window.ThermobohrStationen.springt();
     for (const c of caps) {
-      const ein = c.von <= 0 ? 1 : smooth(range(p, c.von - .012, c.von));
+      const ein = c.von <= 0 ? 1 : smooth(range(p, c.von, c.von + .012));
       const mix = springt && c.von > 0 ? 0 : ein * (1 - smooth(range(p, c.bis - .012, c.bis)));
       const an = mix > .01;
       if (an !== c.an) { c.an = an; c.el.classList.toggle('an', an); }
