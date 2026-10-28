@@ -1359,52 +1359,34 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   // Bildschirmlage der Linie (RX/RY) und ihres Fusses auf Geländehöhe 0 (FY), NaN hinter der Kamera
   const RX = new Float64Array(RELIEF_PUNKTE), RY = new Float64Array(RELIEF_PUNKTE), FX = new Float64Array(RELIEF_PUNKTE), FY = new Float64Array(RELIEF_PUNKTE);
   const landBild = document.createElement('canvas'), landCtx = landBild.getContext('2d');
-  const heroText = document.querySelector('.hero-copy');
-  let textRahmen = null;   // Fläche des Hero-Texts über dem Canvas; nach Grössenänderung neu messen
-
-  function textMessen() {
-    const c = canvas.getBoundingClientRect(), r = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
-    if (!heroText) return r;
-    // Beim Einblenden ist der Text noch verschoben (.cap.seite ohne .an): gemessen wird die Endlage
-    const t = getComputedStyle(heroText).transform, m = t && t !== 'none' ? new DOMMatrixReadOnly(t) : null;
-    const dx = m ? m.m41 : 0, dy = m ? m.m42 : 0;
-    for (const el of heroText.children) {
-      const b = el.getBoundingClientRect();
-      r.x0 = Math.min(r.x0, b.left - dx - c.left); r.x1 = Math.max(r.x1, b.right - dx - c.left);
-      r.y0 = Math.min(r.y0, b.top - dy - c.top); r.y1 = Math.max(r.y1, b.bottom - dy - c.top);
-    }
-    return r;
-  }
-
   // claude/v006-stationen: Die Landschaft bleibt sichtbar, solange die Kamera über dem Gelände steht – im Hero, beim
   // Eintauchen, bei Station 01, in den erhöhten Gesamtansichten und am Schluss. Taucht die Kamera unter die
   // Oberfläche, blendet sie aus. Gezeichnet wird sie unter der Szene, Bohrung und Gestänge liegen darüber.
   // grund: Farbe des Bühnenhintergrunds in diesem Bild (zum Verdecken beim direkten Zeichnen)
-  // Steht die Kamera still (Hero, Schluss, beim Lesen), wird ein Zwischenbild mit sauber freigestelltem Gerät und
-  // Text einmal gezeichnet und wiederverwendet. Bewegt sie sich, wird direkt auf die Bühne gezeichnet, ohne das
+  // Steht die Kamera still (Hero, Schluss, beim Lesen), wird ein Zwischenbild mit sauber freigestelltem Gerät
+  // einmal gezeichnet und wiederverwendet. Den Hero-Text stellt nicht die Landschaft frei, sondern der dunkle
+  // Verlauf .hero-grund darüber – so laufen die Linien weich aus, im Stand wie beim Scrollen. Bewegt sie sich, wird direkt auf die Bühne gezeichnet, ohne das
   // Freistellen um das Gerät: Ein Zwischenbild müsste sonst in jedem Bild neu übertragen und die breiten Ränder um
   // tausende Gerätestriche neu gerastert werden – beides kostet ein Vielfaches des eigentlichen Zeichnens.
   let landSchluessel = '', landBildSchluessel = '', ruhig = 0;
   function landschaft(p, grund) {
     const a = smooth(range(K.py, 3, 16));
     if (a < 0.01 || !RIG) return;
-    const T = p < 0.065 ? textRahmen || (textRahmen = textMessen()) : null;   // Hero-Text, solange er zu sehen ist
-    const schluessel = [K.px, K.py, K.pz, K.fx, K.fy, K.fz, K.f, K.cx, K.cy, canvas.width, canvas.height, T ? T.x1 : -1, T ? T.y0 : -1, T ? T.y1 : -1].map(v => v.toFixed(2)).join('|');
+    const schluessel = [K.px, K.py, K.pz, K.fx, K.fy, K.fz, K.f, K.cx, K.cy, canvas.width, canvas.height].map(v => v.toFixed(2)).join('|');
     if (schluessel === landSchluessel) ruhig++; else { landSchluessel = schluessel; ruhig = 0; }
     ctx.save();
     ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = a;
     if (ruhig >= 2) {
-      if (landBildSchluessel !== schluessel) { landBildSchluessel = schluessel; landZeichnen(T); }
+      if (landBildSchluessel !== schluessel) { landBildSchluessel = schluessel; landZeichnen(); }
       ctx.drawImage(landBild, 0, 0, W, H);
     } else {
-      // Hinter dem Hero-Text liegt dabei der dunkle Verlauf (.hero-grund), der mit dem Text gemeinsam ausblendet
       reliefZeichnen(ctx, grund, false);
     }
     ctx.restore();
   }
 
-  function landZeichnen(T) {
+  function landZeichnen() {
     if (landBild.width !== canvas.width || landBild.height !== canvas.height) {
       landBild.width = canvas.width; landBild.height = canvas.height;
     }
@@ -1414,13 +1396,6 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     L.clearRect(0, 0, landBild.width, landBild.height);
     L.setTransform(DPR, 0, 0, DPR, 0, 0);
     reliefZeichnen(L, null, true);
-    if (!T) return;
-    // dazu weich der Hero-Text: die Maske radiert aus
-    const M = textMaske(T);
-    L.setTransform(1, 0, 0, 1, 0, 0);
-    L.globalCompositeOperation = 'destination-out';
-    L.drawImage(M.bild, 0, Math.round(M.y0 * DPR));
-    L.globalCompositeOperation = 'source-over';
   }
 
   // Zeichnet die Reihen von hinten nach vorne und stellt (freistellen) das Gerät frei. grund = null: auf das
@@ -1493,25 +1468,6 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     }
     L.stroke();
     L.globalCompositeOperation = 'source-over';
-  }
-
-  // Weiche Maske über dem Hero-Text, nur bei neuer Grösse oder Textlage neu berechnet. Der Rand entsteht über einen
-  // Schatten: das Rechteck selbst liegt ausserhalb, nur sein Schatten fällt auf den Text. Die Maske reicht links bis
-  // über den Seitenrand und deckt oben und unten nur den Textbereich ab.
-  const maske = { bild: document.createElement('canvas'), schluessel: '', y0: 0 };
-  function textMaske(T) {
-    const s = [T.x1, T.y0, T.y1, DPR].join('|');
-    if (s === maske.schluessel) return maske;
-    maske.schluessel = s;
-    const rand = 110;   // Platz für den Schatten (bis 3 σ bei DPR 1)
-    maske.y0 = T.y0 - 30 - rand;
-    maske.bild.width = Math.ceil((T.x1 + 40 + rand) * DPR);
-    maske.bild.height = Math.ceil((T.y1 - T.y0 + 60 + 2 * rand) * DPR);
-    const M = maske.bild.getContext('2d');
-    M.setTransform(DPR, 0, 0, DPR, 0, -maske.y0 * DPR);
-    M.shadowColor = '#000'; M.shadowBlur = 36; M.shadowOffsetX = 1e4 * DPR;
-    M.fillRect(-1e4 - 40, T.y0 - 30, T.x1 + 40 + 40, T.y1 - T.y0 + 60);
-    return maske;
   }
 
   function zeichnen(z, p) {
@@ -1771,8 +1727,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   }
 
   groesse();
-  window.addEventListener('resize', () => { groesse(); textRahmen = null; if (!laeuft) requestAnimationFrame(frame); });
-  window.addEventListener('load', () => { textRahmen = null; });   // Schriften verschieben den Text noch
+  window.addEventListener('resize', () => { groesse(); if (!laeuft) requestAnimationFrame(frame); });
 
   // Prüfhilfe: index.html?p=0.6 springt direkt zu diesem Fortschritt der Animation
   const sprung = parseFloat(new URLSearchParams(location.search).get('p'));
