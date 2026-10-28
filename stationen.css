@@ -23,6 +23,12 @@
 .cap:not(.seite), .cap:not(.seite).an { transform: translate(-50%, calc((1 - var(--cap-mix, 0)) * 14px)); }
 .cap.seite:not(.finale), .cap.seite:not(.finale).an { transform: translateY(calc((1 - var(--cap-mix, 0)) * -12px)); }
 
+/* Hero: dunkler Verlauf hinter dem Titel wie im Schluss (.closing-sheet), die Landschaft tritt dort zurück */
+.hero-grund { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgb(var(--buehne, 7 27 21) / .94) 0%, rgb(var(--buehne, 7 27 21) / .84) 34%, rgb(var(--buehne, 7 27 21) / 0) 53%); }
+@media (max-width: 900px) {
+  .hero-grund { background: linear-gradient(180deg, rgb(var(--buehne, 7 27 21) / .96) 0%, rgb(var(--buehne, 7 27 21) / .9) 30%, rgb(var(--buehne, 7 27 21) / 0) 52%); }
+}
+
 /* Strichleiter neben Tiefe und Temperatur nur, solange gebohrt wird (kombi.js setzt --leiter) */
 .hud .leiter { opacity: var(--leiter, 0); }
 /* Schmal stehen die Tiefenmarken der Gesamtansicht dort, wo sonst die Messwerte sind: die Zeile nennt die Werte ohnehin */
@@ -68,10 +74,20 @@
   .thema-link { margin-top: 10px; padding: 4px 0; gap: 14px; }
   .cap:not(.seite) { bottom: calc(14px + var(--reise-h) + 26px + var(--verdeckt)); }
 }
-/* Handy hoch: Tiefe und Temperatur rücken während der Stationen nach oben, das Blatt verdeckt sie so nie */
+/* Handy hoch: Tiefe und Temperatur stehen fest oben (das Blatt unten verdeckt sie so nie), mit einem leichten
+   dunklen Verlauf dahinter, solange die Stationen laufen */
 @media (max-width: 1100px) and (orientation: portrait) {
-  .website .hud { transition: opacity .5s, top .6s ease, transform .6s ease; }
-  .website .stage.reise-an .hud { top: 22px; transform: none; }
+  .website .hud { top: 22px; bottom: auto; transform: none; }
+  .stage::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 130px; z-index: 2; pointer-events: none; background: linear-gradient(180deg, rgb(var(--buehne, 7 27 21) / .92), rgb(var(--buehne, 7 27 21) / 0)); opacity: 0; transition: opacity .4s; }
+  .stage.reise-an::before { opacity: 1; }
+}
+/* Handy: auch die Temperatur mit Strichleiter (die Tiefe hat sie über mobile-depth.css) */
+@media (max-width: 520px) {
+  .website .hud-rechts { gap: 7px; }
+  .website .hud-rechts .leiter { display: flex; align-items: flex-end; gap: 3px; padding-top: 5px; }
+  .website .hud-rechts .leiter i { width: 7px; height: 1px; background: rgba(184, 211, 175, .34); }
+  .website .hud-rechts .leiter i:nth-child(5n+1) { width: 11px; }
+  .website .hud-rechts .leiter i.an { background: var(--warm); }
 }
 @media (max-width: 1100px) and (max-height: 520px) and (orientation: landscape) {
   .thema { left: 12px; right: auto; width: min(46%, 400px); margin: 0; }

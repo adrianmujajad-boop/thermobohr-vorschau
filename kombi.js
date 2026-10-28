@@ -287,12 +287,12 @@
       }
       // 07 Sonde: erhöhte Gesamtansicht von links, die weisse Sonde läuft durch die ganze Bohrung hinunter
       case 'sonde': {
-        const d = ovDist * (hoch ? .95 : .85), y = -ENDTIEFE * .5;
+        const d = ovDist * (hoch ? .95 : .9), y = -ENDTIEFE * .43;
         return { dist: d, lookY: y, yaw: -.45 + .2 * t, pitch: Math.asin(clamp((90 - y) / d, 0, .7)) };
       }
       // 08 Hinterfüllung: erhöhte Gesamtansicht von rechts, die Verpressung steigt von unten bis an die Oberfläche
       case 'verpressen': {
-        const d = ovDist * (hoch ? .95 : .85), y = -ENDTIEFE * .5;
+        const d = ovDist * (hoch ? .95 : .9), y = -ENDTIEFE * .43;
         return { dist: d, lookY: y, yaw: .95 - .2 * t, pitch: Math.asin(clamp((90 - y) / d, 0, .7)) };
       }
       // Tauchfahrt: der Spindel entlang ins Bohrloch (wie bisher)
@@ -698,19 +698,6 @@
   }
 
   // ---------- Szene ----------
-  function erdblock(ov) {
-    // Der Schnitt wird durch seine Schichtkonturen lesbar. Nur in der
-    // Gesamtansicht bleiben kurze Vermessungsmarken als räumlicher Bezug.
-    const a = 0.18 * smooth(ov);
-    if (a < 0.02) return;
-    for (const x of [-BX, BX]) for (const z of [-BZ, BZ]) {
-      linie('block', a, x, 0, z, x - Math.sign(x) * 12, 0, z);
-      linie('block', a, x, 0, z, x, 0, z - Math.sign(z) * 12);
-      linie('block', a * 0.55, x, -BUNTEN, z, x - Math.sign(x) * 12, -BUNTEN, z);
-      linie('block', a * 0.55, x, -BUNTEN, z, x, -BUNTEN, z - Math.sign(z) * 12);
-    }
-  }
-
   // Schichtgrenzen als gewellte Linienscharen; an der Bohrung unterbrochen
   // Schichten als schwach getönte Bänder im Schnitt durch die Bohrachse (Ebene z = 0).
   // Nah an der Bohrung färbt das Band den Hintergrund, in der Gesamtansicht entsteht ein Querschnitt.
@@ -738,13 +725,16 @@
     });
     ctx.fill();
   }
+  // claude/v006-stationen: Aus der Ferne zeichnen sich die Bänder als Kasten ab – dort blenden sie aus.
   function schichtbaender(ov) {
+    const fern = 1 - smooth(ov);
+    if (fern < 0.02) return;
     for (let i = 0; i < SCHICHTEN.length; i++) {
       const s = SCHICHTEN[i];
-      band(i === 0 ? () => 0 : x => grenze(i - 1, x, 0), x => grenze(i, x, 0), s.farbe, s.deckung * (0.7 + 0.3 * ov));
+      band(i === 0 ? () => 0 : x => grenze(i - 1, x, 0), x => grenze(i, x, 0), s.farbe, s.deckung * fern);
     }
     // Wassergesättigter Kies unter dem Grundwasserspiegel
-    band(() => -GW_SPIEGEL, x => grenze(1, x, 0), '96,172,214', 0.018);
+    band(() => -GW_SPIEGEL, x => grenze(1, x, 0), '96,172,214', 0.018 * fern);
   }
 
   function schichten(ov) {
@@ -1168,7 +1158,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.fillRect(meisselBild.x - r, meisselBild.y - r, 2 * r, 2 * r);
   }
 
-  // namen: Anteil der Schichtnamen (bei Station 06 stehen sie sonst im Text rechts)
+  // namen: Anteil der Schichtnamen (bei den Stationen 06 und 08 stünden sie sonst im Text rechts)
   function beschriftung(ov, namen = 1) {
     if (ov < 0.05) return;
     ctx.globalCompositeOperation = 'source-over';
@@ -1541,8 +1531,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ctx.globalAlpha = smooth(range(p, 0.008, 0.06)) * (1 - end);
     ctx.globalCompositeOperation = 'lighter';
     const ov = smooth(range(K.dist, 60, 420));   // 0 = nah am Bohrkopf, 1 = Gesamtansicht
-    schichtbaender(ov);
-    erdblock(ov);
+    schichtbaender(ov);   // die Eckmarken des Erdblocks (erdblock) entfallen: sie wirkten wie ein Kasten
     schichten(ov);
     schichtung(ov);
     grundwasser(1 + 0.9 * (gewicht.wasserlinie || 0));
@@ -1561,7 +1550,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     ausgeben();
     gluehenMeissel();
     // Bei reduzierter Bewegung bleibt die Kamera in der Gesamtansicht: Beschriftung tritt hinter die Stationen zurück
-    beschriftung(ov * smooth(range(p, 0.005, 0.06)) * (1 - end) * (REDUZIERT ? 1 - stationsAnteil(p) : 1), 1 - (gewicht.lot || 0));
+    beschriftung(ov * smooth(range(p, 0.005, 0.06)) * (1 - end) * (REDUZIERT ? 1 - stationsAnteil(p) : 1), 1 - (gewicht.lot || 0) - (gewicht.verpressen || 0));
     if (!REDUZIERT) massstabText(smooth(range(gewicht.plan || 0, .7, 1)) * (1 - end));
     // Nah an der Bohrung tritt das Gerät etwas zurück, damit die Texte lesbar bleiben
     // Bildkonturen / Original ersetzen das Gerät in der Geräteansicht
