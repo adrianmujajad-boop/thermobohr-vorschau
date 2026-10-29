@@ -9,24 +9,24 @@
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23071b15'/%3E%3Cpath d='M10 11h20M20 11v21M24 18q0-10 10-11-1 10-10 11' fill='none' stroke='%23b9dc87' stroke-width='2'/%3E%3C/svg%3E">
   <!-- Bühne, Viewer und Bohranimation teilt diese Seite mit der kombinierten Fassung -->
-  <link rel="stylesheet" href="kombi.css?v=20261029203303">
-  <link rel="stylesheet" href="website.css?v=20261029203303">
-  <link rel="stylesheet" href="daisy-button.css?v=20261029203303">
-  <link rel="stylesheet" href="ending.css?v=20261029203303">
-  <link rel="stylesheet" href="mobile-depth.css?v=20261029203303">
-  <link rel="stylesheet" href="stationen.css?v=20261029203303">
-  <link rel="stylesheet" href="einstieg.css?v=20261029203303">
-  <link rel="stylesheet" href="ui.css?v=20261029203303">
+  <link rel="stylesheet" href="kombi.css?v=20261029205325">
+  <link rel="stylesheet" href="website.css?v=20261029205325">
+  <link rel="stylesheet" href="daisy-button.css?v=20261029205325">
+  <link rel="stylesheet" href="ending.css?v=20261029205325">
+  <link rel="stylesheet" href="mobile-depth.css?v=20261029205325">
+  <link rel="stylesheet" href="stationen.css?v=20261029205325">
+  <link rel="stylesheet" href="einstieg.css?v=20261029205325">
+  <link rel="stylesheet" href="ui.css?v=20261029205325">
   <!-- Einstieg beim Öffnen: ohne defer, damit er vor dem ersten Bild greift (einmal pro Besuch) -->
   <script type="importmap">{"imports":{"three":"./echt/vendor/build/three.module.js"}}</script>
-  <script type="module" src="echt/echt.js?v=20261029203303"></script>
-  <script src="einstieg.js?v=20261029203303"></script>
-  <script defer src="rig-model.js?v=20261029203303"></script>
-  <script defer src="kombi.js?v=20261029203303"></script>
-  <script defer src="stationen.js?v=20261029203303"></script>
-  <script defer src="website.js?v=20261029203303"></script>
-  <script defer src="ending-app.js?v=20261029203303"></script>
-<link rel="stylesheet" href="content.css?v=20261029203303"><script defer src="content.js?v=20261029203303"></script></head>
+  <script type="module" src="echt/echt.js?v=20261029205325"></script>
+  <script src="einstieg.js?v=20261029205325"></script>
+  <script defer src="rig-model.js?v=20261029205325"></script>
+  <script defer src="kombi.js?v=20261029205325"></script>
+  <script defer src="stationen.js?v=20261029205325"></script>
+  <script defer src="website.js?v=20261029205325"></script>
+  <script defer src="ending-app.js?v=20261029205325"></script>
+<link rel="stylesheet" href="content.css?v=20261029205325"><script defer src="content.js?v=20261029205325"></script></head>
 <body class="website">
   <header class="header">
     <a class="brand" href="#start" aria-label="Thermobohr AG – Start"><img src="assets/Logo-hell.png" alt="Thermobohr AG" width="1024" height="146"></a>
@@ -239,8 +239,9 @@
       </div>
     </section>
 
+    <!-- Startseite wie Bohrfix: nach der Animation nur das Nötigste (Leistungen, Kurzporträt, Kontakt).
+         Jahresverlauf steht auf leistungen.html, der Projektablauf auf erdsondenbohrung.html#ablauf. -->
     <div class="editorial" id="stationen">
-      <nav class="content-jump" aria-label="Inhalte nach der Bohrung"><span>THERMOBOHR / ERDWÄRME</span><div><a href="#leistungen">Leistungen</a><a href="#system">Das System</a><a href="#ablauf">Ablauf</a><a href="faq.html">Fragen</a></div></nav>
       <section class="ed-section ed-services" id="leistungen" aria-labelledby="stationen-titel">
         <div class="ed-heading" data-reveal><p class="ed-kicker">01 / LEISTUNGEN</p><div><h2 id="stationen-titel" tabindex="-1">Ein guter Grund.<br><em>Für Ihre neue Heizung.</em></h2><p class="ed-lead">Erdsonden erschliessen die natürliche Wärme unter Ihrem Grundstück. Für Raumwärme und Warmwasser – heute und morgen.</p></div></div>
         <div class="ed-service-grid">
@@ -249,24 +250,9 @@
         </div>
         <div class="ed-service-links" data-reveal><a href="leistungen.html"><span>Unsere Leistungen</span><span class="ico ico-ne" aria-hidden="true"></span></a><a href="maschinenpark.html"><span>Unser Maschinenpark</span><span class="ico ico-ne" aria-hidden="true"></span></a></div>
       </section>
-      <section class="ed-section ed-system" id="system" aria-labelledby="system-title">
-        <div class="ed-heading" data-reveal><p class="ed-kicker">02 / ERDWÄRME</p><div><h2 id="system-title">Warm im Winter.<br><em>Angenehm im Sommer.</em></h2></div></div>
-        <div class="ed-system-grid" data-reveal><div class="ed-system-drawing"><img src="assets/editorial/waermekreislauf.svg" alt="Geschlossener Kreislauf zwischen Erdsonde, Wärmepumpe und Heizung" width="640" height="480" loading="lazy"><span>SCHEMATISCHE DARSTELLUNG</span></div><div class="ed-season">
-          <div class="ed-tabs" role="tablist" aria-label="Erdwärme im Jahresverlauf"><button type="button" role="tab" id="tab-heizen" aria-controls="panel-heizen" aria-selected="true" data-season="heizen">Im Winter</button><button type="button" role="tab" id="tab-kuehlen" aria-controls="panel-kuehlen" aria-selected="false" tabindex="-1" data-season="kuehlen">Im Sommer</button></div>
-          <div role="tabpanel" id="panel-heizen" aria-labelledby="tab-heizen" tabindex="0"><h3>Wärme holen.<br>Behaglich wohnen.</h3><p>Die Erdsonde nimmt Wärme aus dem Boden auf. Die Wärmepumpe macht sie für Heizung und Warmwasser nutzbar.</p></div>
-          <div role="tabpanel" id="panel-kuehlen" aria-labelledby="tab-kuehlen" tabindex="0"><h3>Wärme abgeben.<br>Angenehm bleiben.</h3><p>Bei passender Auslegung kann das System im Sommer Wärme aus dem Gebäude an den kühleren Untergrund abgeben.</p></div>
-          <a class="ed-text-link" href="waermepumpen.html">Mehr erfahren <span class="ico ico-ne" aria-hidden="true"></span></a>
-        </div></div>
-      </section>
-      <section class="ed-section ed-process" id="ablauf" aria-labelledby="ablauf-title">
-        <div class="ed-heading" data-reveal><p class="ed-kicker">03 / ABLAUF</p><div><h2 id="ablauf-title">Gut vorbereitet.<br><em>Meter für Meter.</em></h2></div></div>
-        <div class="ed-process-grid"><div class="ed-process-aside" data-reveal><img src="assets/editorial/bohrplatz.svg" alt="Schematische Aufsicht auf Bohrpunkt, Gebäude und Zufahrt" width="640" height="480" loading="lazy"><a class="ed-text-link" href="erdsondenbohrung.html">Den Ablauf kennenlernen <span class="ico ico-ne" aria-hidden="true"></span></a></div>
-          <ol class="ed-process-short"><li><span>01</span><h3>Standort abklären</h3></li><li><span>02</span><h3>Planung &amp; Bewilligung</h3></li><li><span>03</span><h3>Bohrung ausführen</h3></li><li><span>04</span><h3>Sonde einbauen &amp; hinterfüllen</h3></li><li><span>05</span><h3>Leitungen anbinden</h3></li><li><span>06</span><h3>Anlage in Betrieb nehmen</h3></li></ol>
-        </div>
-      </section>
       <section class="ed-section ed-about" id="unternehmen" aria-labelledby="about-title">
         <div class="ed-about-mark" aria-hidden="true"><svg viewBox="0 0 400 400"><g fill="none" stroke="currentColor" stroke-width="1"><path d="M-20 310C110 120 150 440 420 125M-20 280C110 90 150 410 420 95M-20 250C110 60 150 380 420 65M-20 220C110 30 150 350 420 35M-20 190C110 0 150 320 420 5M-20 160C110-30 150 290 420-25M-20 340C110 150 150 470 420 155M-20 370C110 180 150 500 420 185"/></g><path d="M125 117h150M200 117v168" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="200" cy="285" r="5" fill="currentColor"/></svg><span>THERMOBOHR AG</span></div>
-        <div class="ed-about-copy" data-reveal><p class="ed-kicker">04 / THERMOBOHR</p><h2 id="about-title">Mit Sorgfalt.<br><em>Für die Wärme von morgen.</em></h2><p>Sorgfältige Vorbereitung, klare Absprachen und saubere Ausführung. Unser Anspruch an Erdwärme.</p><a class="ed-text-link" href="ueber-uns.html">Über uns <span class="ico ico-ne" aria-hidden="true"></span></a></div>
+        <div class="ed-about-copy" data-reveal><p class="ed-kicker">02 / THERMOBOHR</p><h2 id="about-title">Mit Sorgfalt.<br><em>Für die Wärme von morgen.</em></h2><p>Sorgfältige Vorbereitung, klare Absprachen und saubere Ausführung. Unser Anspruch an Erdwärme.</p><a class="ed-text-link" href="ueber-uns.html">Über uns <span class="ico ico-ne" aria-hidden="true"></span></a></div>
       </section>
     </div>
 
@@ -277,7 +263,7 @@
     <div class="footer-main"><div class="footer-company"><a class="footer-brand" href="index.html"><img src="assets/Logo-hell.png" alt="Thermobohr AG" width="1024" height="146"></a><p>Erdsondenbohrungen.<br>Energie aus der Tiefe.</p></div>
       <div class="footer-column"><p>LEISTUNGEN</p><a href="leistungen.html">Übersicht</a><a href="erdsondenbohrung.html">Erdsondenbohrung</a><a href="waermepumpen.html">Erdsonde &amp; Wärmepumpe</a><a href="maschinenpark.html">Maschinenpark</a></div>
       <div class="footer-column"><p>THERMOBOHR</p><a href="ueber-uns.html">Über uns</a><a href="philosophie.html">Unsere Philosophie</a><a href="team.html">Team</a><a href="offene-stellen.html">Offene Stellen</a><a href="referenzen.html">Referenzen</a><a href="kontakt.html">Kontakt</a></div>
-      <div class="footer-column"><p>GUT ZU WISSEN</p><a href="faq.html">Fragen &amp; Antworten</a><a href="seitenuebersicht.html">Alle Seiten</a><a href="kontakt.html#anfrage">Anfrage vorbereiten</a><a href="index.html#ablauf">Ihr Projektablauf</a></div>
+      <div class="footer-column"><p>GUT ZU WISSEN</p><a href="faq.html">Fragen &amp; Antworten</a><a href="seitenuebersicht.html">Alle Seiten</a><a href="kontakt.html#anfrage">Anfrage vorbereiten</a><a href="erdsondenbohrung.html#ablauf">Ihr Projektablauf</a></div>
     </div><div class="footer-bottom"><span>© 2026 Thermobohr AG</span><span class="draft-flag">Website-Entwurf · Firmendaten noch zu ergänzen</span><div><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="agb.html">AGB</a></div></div>
   </footer>
 
