@@ -3,17 +3,28 @@
   const header = document.querySelector('.site-header');
   const menu = document.getElementById('menu-toggle');
   const closeMenu = () => {
+    if (!header || !menu) return;
     header.dataset.menu = 'closed';
+    document.documentElement.classList.remove('sub-menu-open');
     menu.setAttribute('aria-expanded', 'false');
     menu.setAttribute('aria-label', 'Navigation öffnen');
   };
   menu?.addEventListener('click', () => {
     const open = menu.getAttribute('aria-expanded') !== 'true';
     header.dataset.menu = open ? 'open' : 'closed';
+    document.documentElement.classList.toggle('sub-menu-open', open);
     menu.setAttribute('aria-expanded', String(open));
     menu.setAttribute('aria-label', open ? 'Navigation schliessen' : 'Navigation öffnen');
   });
   document.addEventListener('keydown', event => { if (event.key === 'Escape' && menu?.getAttribute('aria-expanded') === 'true') { closeMenu();menu.focus(); } });
+  header?.querySelectorAll('.site-nav a').forEach(link => link.addEventListener('click', closeMenu));
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Tab' || menu?.getAttribute('aria-expanded') !== 'true') return;
+    const targets = [menu, ...header.querySelectorAll('.site-nav a')];
+    const first = targets[0], last = targets[targets.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
   const wideScreen = window.matchMedia('(min-width: 1001px)');
   wideScreen.addEventListener('change', event => { if (event.matches && menu) closeMenu(); });
 
@@ -25,21 +36,28 @@
   const status = document.getElementById('inquiry-status');
   const topic = new URLSearchParams(window.location.search).get('thema');
   const topicField = form.elements.namedItem('thema');
-  if (topic && [...topicField.options].some(option => option.value === topic)) topicField.value = topic;
+  if (topic && topicField) {
+    if (topicField.options) {
+      if ([...topicField.options].some(option => option.value === topic)) topicField.value = topic;
+    } else topicField.value = topic.slice(0, 100);
+  }
+  const project = new URLSearchParams(window.location.search).get('projektart');
+  const projectField = form.elements.namedItem('projektart');
+  if (project && projectField?.options && [...projectField.options].some(option => option.value === project)) projectField.value = project;
   form.addEventListener('submit', event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
     const data = new FormData(form);
     const value = key => String(data.get(key) || '').trim();
     output.value = [
-      'Projektanfrage – Thermobohr AG', '',
+      'Kontaktanfrage – Thermobohr AG', '',
       `Thema: ${value('thema')}`,
-      `Bauort / Grundstück: ${value('bauort')}`,
-      `Vorhaben: ${value('projektart')}`,
-      `Planungsstand: ${value('planungsstand')}`,
-      `Gewünschter Zeitraum: ${value('zeitraum') || 'Noch offen'}`, '',
+      ...(value('bauort') ? [`Bauort / Grundstück: ${value('bauort')}`] : []),
+      ...(value('projektart') ? [`Vorhaben: ${value('projektart')}`] : []),
+      ...(value('planungsstand') ? [`Planungsstand: ${value('planungsstand')}`] : []),
+      ...(value('zeitraum') ? [`Gewünschter Zeitraum: ${value('zeitraum')}`] : []), '',
       'Beschreibung und Fragen:', value('nachricht'), '',
-      `Kontaktperson: ${value('name')}`,
+      `Kontaktperson: ${[value('vorname'), value('name')].filter(Boolean).join(' ')}`,
       `E-Mail: ${value('email')}`,
       ...(value('telefon') ? [`Telefon: ${value('telefon')}`] : []),
     ].join('\n');

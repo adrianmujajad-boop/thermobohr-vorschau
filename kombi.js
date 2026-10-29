@@ -1352,8 +1352,9 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
         const u = -300 + k * 4, y = reliefHoehe(u * cw - d * sw, u * sw + d * cw);
         P[3 * k] = u * cs - d * sn; P[3 * k + 1] = y; P[3 * k + 2] = -u * sn - d * cs;
         r.schnee[k] = smooth(range(y, 16, 40));
-        const boden = 0.15 * (1 - smooth(range(Math.hypot(u, d * 1.3), 20, 250)));
-        r.deckung[k] = Math.max(boden, smooth(range(y, 2.5, 9)) * (0.28 + 0.5 * r.schnee[k]));
+        // Linie & Realität v002: Gelände kräftiger in Linien (Boden 0.15 → 0.26, Hänge 0.28 → 0.44).
+        const boden = 0.26 * (1 - smooth(range(Math.hypot(u, d * 1.3), 20, 250)));
+        r.deckung[k] = Math.min(1, Math.max(boden, smooth(range(y, 2.5, 9)) * (0.44 + 0.5 * r.schnee[k])));
       }
     }
   }
@@ -1479,10 +1480,11 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     const end = abschluss3DMix(p);
     const endBg = FARBEN ? [24, 16, 11] : [7, 27, 21];
     const grund = end > 0 ? `rgb(${mischeFarbe(endBg, [7, 27, 21], end).join(",")})` : hintergrund;
-    ctx.fillStyle = grund;
-    ctx.fillRect(0, 0, W, H);
+    // Linie & Realität v002: Die Bühnenfarbe kommt aus CSS (--buehne), darunter liegt die echte 3D-Ebene
+    // (#echt, echt/echt.js). Darum hier nicht füllen und die Landschaft nicht mit der Bühnenfarbe übermalen.
+    ctx.clearRect(0, 0, W, H);
     geraetProjizieren();
-    if (ansicht === '3d') landschaft(p, grund);
+    if (ansicht === '3d') landschaft(p, null);
     // Einstieg: die nahe, leicht drehende Bohrkrone, bevor die Kamera zur Startansicht zurückfährt
     if (EINSTIEG && EINSTIEG.active && EINSTIEG.cameraMix < .72) {
       ctx.globalCompositeOperation = 'lighter';
@@ -1525,7 +1527,8 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     if (!REDUZIERT) massstabText(smooth(range(gewicht.plan || 0, .7, 1)) * (1 - end));
     // Nah an der Bohrung tritt das Gerät etwas zurück, damit die Texte lesbar bleiben
     // Bildkonturen / Original ersetzen das Gerät in der Geräteansicht
-    if (ansicht === '3d') bohrgeraet(lerp(lerp(1, 0.6, smooth(range(p, 0.04, 0.1))), 1, end));
+    // Linie & Realität v002: die Linien des Geräts etwas zurück, damit das echte Gerät darunter mitliest.
+    if (ansicht === '3d') bohrgeraet(0.85 * lerp(lerp(1, 0.6, smooth(range(p, 0.04, 0.1))), 1, end));
   }
 
   // ---------- HUD und Texte ----------
@@ -1735,6 +1738,8 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
     freistellen(z, p, dt);
     zeichnen(z, p);
     hud(z, p);
+    // Linie & Realität v002: echte 3D-Ebene mit derselben Kamera im selben Bild.
+    if (window.ThermobohrEcht) window.ThermobohrEcht.zeichne(K, z, p, zeit, spin, abschluss3DMix(p));
     if (laeuft) requestAnimationFrame(frame);
   }
 
@@ -1776,6 +1781,7 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
       kameraSetzen(kam);
       zeichnen(z, p);
       hud(z, p);
+      if (window.ThermobohrEcht) window.ThermobohrEcht.zeichne(K, z, p, zeit, spin, abschluss3DMix(p));
     },
   };
 })();

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Bohrplatz frühzeitig planen</title>
+  <desc id="desc">Eine schematische Draufsicht zeigt das Gebäude, einen Bohrpunkt, das Bohrgerät, die Zufahrt und einen Arbeitsbereich. Die Anordnung illustriert Planungsfragen und enthält keine verbindlichen Abstandsmasse.</desc>
+  <defs>
+    <pattern id="hatch" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0v9" stroke="#6aaa3a" stroke-opacity=".2"/></pattern>
+    <marker id="arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="m2 1 3 3-3 3" stroke="#1d5c2e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <path fill="#e9eee4" d="M0 0h640v480H0z"/>
+  <g stroke="#153d2b" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 40h35M32 40v17M608 40h-35M608 40v17M32 440h35M32 440v-17M608 440h-35M608 440v-17" opacity=".25"/>
+    <path d="m75 127 465-24 36 289-500 17-1-282Z" stroke-dasharray="4 7" opacity=".35"/>
+    <path d="M76 367h98c32 0 51-20 51-46v-49" stroke="#153d2b" stroke-opacity=".06" stroke-width="55"/>
+    <path d="M76 339h92c17 0 28-10 28-27v-40M76 394h99c47 0 78-30 78-72v-50" opacity=".25"/>
+    <path d="M98 367h70c34 0 57-16 57-46v-20" stroke="#1d5c2e" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <path d="M347 134h177v147H347z" fill="#f3f4ed" stroke-width="1.5"/>
+    <path d="M354 141h163v133H354zM433 141v133M354 205h79M440 211h77M440 218h77M440 225h77M440 232h77M440 239h77M440 246h77" opacity=".45"/>
+    <path d="M373 134h29m68 0h28M524 154v27m0 50v27M347 158v25M376 281h29M354 241h24v33M378 241a24 24 0 0 0-24-24" stroke-width="2.3"/>
+    <path d="M145 197h153v115H145z" fill="url(#hatch)" stroke="#6aaa3a" stroke-dasharray="3 5"/>
+    <path d="M171 228h53v65h-53z" fill="#e9eee4" stroke-width="1.3"/>
+    <path d="M174 231h9v59h-9zM212 231h9v59h-9zM191 235h14v48h-14zM198 235v-18h58v40" stroke="#1d5c2e" stroke-width="1.2"/>
+    <circle cx="256" cy="267" r="11" stroke="#1d5c2e" stroke-width="1.4"/><circle cx="256" cy="267" r="3" fill="#6aaa3a" stroke="none"/>
+    <path d="M256 251v-9m0 50v-9m-16-16h-9m50 0h-9M267 267h42v-31h38" stroke="#1d5c2e" stroke-width="1.4"/>
+    <path d="M309 275v11h38v-42" stroke="#b29352" stroke-width="1.1"/>
+    <path d="M145 181v-10h153v10M145 167v8M298 167v8M537 134h10v147h-10M543 134h8M543 281h8" opacity=".35"/>
+    <path d="M99 161h30l16 36M327 361h-33l-38-77M468 354v-62M124 318v23" opacity=".55"/>
+    <path d="M574 158v-32m-5 10 5-10 5 10" stroke-width="1.1"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#153d2b">
+    <text x="58" y="71" font-size="10" letter-spacing="2">03 / DEN STANDORT LESEN</text>
+    <text x="99" y="152" font-size="11">Arbeitsbereich</text>
+    <text x="328" y="366" font-size="12">Bohrpunkt</text>
+    <text x="468" y="371" text-anchor="middle" font-size="12">Gebäude</text>
+    <text x="124" y="309" text-anchor="middle" font-size="11">Zufahrt</text>
+    <text x="574" y="116" text-anchor="middle" font-size="9">N</text>
+    <text x="58" y="431" font-size="10" fill="#607563">PLATZ · ZUGANG · LEITUNGSFÜHRUNG</text>
+    <text x="582" y="431" text-anchor="end" font-size="10" fill="#607563">Keine verbindlichen Abstände</text>
+  </g>
+</svg>

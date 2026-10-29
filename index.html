@@ -3,28 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="noindex, nofollow">
   <title>Thermobohr AG – Erdsondenbohrungen. Energie aus der Tiefe.</title>
-  <meta name="description" content="Thermobohr AG – Erdsondenbohrungen für Erdwärme. Vom Rotomax-Bohrgerät 500 Meter in den Untergrund bis zur fertigen Erdwärmesonde.">
+  <meta name="description" content="Thermobohr AG – Erdsondenbohrungen für Erdwärme. Erdwärme verstehen: Leistungen, Bohrtechnik, Projektablauf und das Zusammenspiel von Erdsonde und Wärmepumpe.">
   <meta name="theme-color" content="#071b15">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23071b15'/%3E%3Cpath d='M10 11h20M20 11v21M24 18q0-10 10-11-1 10-10 11' fill='none' stroke='%23b9dc87' stroke-width='2'/%3E%3C/svg%3E">
   <!-- Bühne, Viewer und Bohranimation teilt diese Seite mit der kombinierten Fassung -->
-  <link rel="stylesheet" href="kombi.css?v=20261028230342">
-  <link rel="stylesheet" href="website.css?v=20261028230342">
-  <link rel="stylesheet" href="daisy-button.css?v=20261028230342">
-  <link rel="stylesheet" href="ending.css?v=20261028230342">
-  <link rel="stylesheet" href="mobile-depth.css?v=20261028230342">
-  <link rel="stylesheet" href="stationen.css?v=20261028230342">
-  <link rel="stylesheet" href="einstieg.css?v=20261028230342">
-  <link rel="stylesheet" href="ui.css?v=20261028230342">
+  <link rel="stylesheet" href="kombi.css?v=20261029193736">
+  <link rel="stylesheet" href="website.css?v=20261029193736">
+  <link rel="stylesheet" href="daisy-button.css?v=20261029193736">
+  <link rel="stylesheet" href="ending.css?v=20261029193736">
+  <link rel="stylesheet" href="mobile-depth.css?v=20261029193736">
+  <link rel="stylesheet" href="stationen.css?v=20261029193736">
+  <link rel="stylesheet" href="einstieg.css?v=20261029193736">
+  <link rel="stylesheet" href="ui.css?v=20261029193736">
   <!-- Einstieg beim Öffnen: ohne defer, damit er vor dem ersten Bild greift (einmal pro Besuch) -->
-  <script src="einstieg.js?v=20261028230342"></script>
-  <script defer src="rig-model.js?v=20261028230342"></script>
-  <script defer src="kombi.js?v=20261028230342"></script>
-  <script defer src="stationen.js?v=20261028230342"></script>
-  <script defer src="website.js?v=20261028230342"></script>
-  <script defer src="ending-app.js?v=20261028230342"></script>
-</head>
+  <script type="importmap">{"imports":{"three":"./echt/vendor/build/three.module.js"}}</script>
+  <script type="module" src="echt/echt.js?v=20261029193736"></script>
+  <script src="einstieg.js?v=20261029193736"></script>
+  <script defer src="rig-model.js?v=20261029193736"></script>
+  <script defer src="kombi.js?v=20261029193736"></script>
+  <script defer src="stationen.js?v=20261029193736"></script>
+  <script defer src="website.js?v=20261029193736"></script>
+  <script defer src="ending-app.js?v=20261029193736"></script>
+<link rel="stylesheet" href="content.css?v=20261029193736"><script defer src="content.js?v=20261029193736"></script></head>
 <body class="website">
   <header class="header">
     <a class="brand" href="#start" aria-label="Thermobohr AG – Start"><img src="assets/Logo-hell.png" alt="Thermobohr AG" width="1024" height="146"></a>
@@ -56,6 +58,7 @@
     <!-- Die Höhe dieser Sektion bestimmt die Scrolllänge der Animation; data-farben="tiefe" lässt die Farben mit der Bohrtiefe wandern. -->
     <section id="bohrung" class="bohrung" data-farben="tiefe" aria-labelledby="hero-title">
       <div class="stage" data-mode="3d">
+        <canvas id="echt" aria-hidden="true"></canvas>
         <canvas id="szene" tabindex="0" role="img" aria-label="Rotomax-Bohrgerät als 3D-Liniengrafik über einer Erdsondenbohrung. Im oberen Bereich mit den Pfeiltasten drehen, mit Plus und Minus zoomen, mit 0 zurücksetzen. Beim Scrollen folgt die Bohrung bis 500 Meter Tiefe."></canvas>
 
 
@@ -236,224 +239,46 @@
       </div>
     </section>
 
-    <!-- Alle Stationen der Bohrung als schlichte Liste: auch ohne Animation (oder beim schnellen Wischen) erreichbar -->
-    <section class="dunkel stationsliste" id="stationen" aria-labelledby="stationen-titel">
-      <div class="abschnitt-kopf">
-        <div>
-          <p class="eyebrow">DIE BOHRUNG IN ACHT STATIONEN</p>
-          <h2 id="stationen-titel" tabindex="-1">Alles auf einen Blick.<br><em>Station für Station.</em></h2>
+    <div class="editorial" id="stationen">
+      <nav class="content-jump" aria-label="Inhalte nach der Bohrung"><span>THERMOBOHR / ERDWÄRME</span><div><a href="#leistungen">Leistungen</a><a href="#system">Das System</a><a href="#ablauf">Ablauf</a><a href="faq.html">Fragen</a></div></nav>
+      <section class="ed-section ed-services" id="leistungen" aria-labelledby="stationen-titel">
+        <div class="ed-heading" data-reveal><p class="ed-kicker">01 / LEISTUNGEN</p><div><h2 id="stationen-titel" tabindex="-1">Ein guter Grund.<br><em>Für Ihre neue Heizung.</em></h2><p class="ed-lead">Erdsonden erschliessen die natürliche Wärme unter Ihrem Grundstück. Für Raumwärme und Warmwasser – heute und morgen.</p></div></div>
+        <div class="ed-service-grid">
+          <a class="ed-service" href="erdsondenbohrung.html" data-reveal><div class="ed-illustration"><img src="assets/editorial/erdsonde.svg" alt="Schematischer Querschnitt einer Erdsonde neben einem Haus" width="640" height="480" loading="lazy"></div><div class="ed-service-copy"><h3>Erdsondenbohrung <span class="ico ico-ne" aria-hidden="true"></span></h3><span class="ed-more">Mehr erfahren</span></div></a>
+          <a class="ed-service" href="waermepumpen.html" data-reveal><div class="ed-illustration"><img src="assets/editorial/waermekreislauf.svg" alt="Schematischer Wärmekreislauf zwischen Erdsonde, Wärmepumpe und Gebäude" width="640" height="480" loading="lazy"></div><div class="ed-service-copy"><h3>Erdsonde &amp; Wärmepumpe <span class="ico ico-ne" aria-hidden="true"></span></h3><span class="ed-more">Mehr erfahren</span></div></a>
         </div>
-        <p class="abschnitt-intro">Die Themen aus der Bohrung zum Nachlesen – mit Link zur passenden Seite oder zurück an die Stelle in der Bohrung.</p>
-      </div>
-      <ol class="stationen-liste">
-        <li>
-          <span class="sl-nr" aria-hidden="true">01</span>
-          <div>
-            <p class="sl-name">Standort</p>
-            <h3>Erst verstehen, <em>dann bohren.</em></h3>
-            <p>Geologie, Grundwasserschutz und Platz vor Ort: Wir klären, was Ihr Grundstück hergibt, und bereiten die Bewilligung beim Kanton vor.</p>
-            <div class="sl-aktionen"><a href="leistungen.html">Leistungen <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="0">In der Bohrung zeigen<span class="sr-only">: Standort</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">02</span>
-          <div>
-            <p class="sl-name">Grundwasserschutz</p>
-            <h3>Sicher durch <em>Kies und Wasser.</em></h3>
-            <p>Eine Schutzverrohrung hält das Lockergestein zurück. Grundwasser wird sauber durchbohrt und später dicht verschlossen.</p>
-            <div class="sl-aktionen"><a href="erdsondenbohrung.html">Erdsondenbohrung <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="1">In der Bohrung zeigen<span class="sr-only">: Grundwasserschutz</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">03</span>
-          <div>
-            <p class="sl-name">Maschinenpark</p>
-            <h3>Rotomax: <em>Schlag und Drehung.</em></h3>
-            <p>Das Raupenbohrgerät bringt den Bohrmast bis an den Ansatzpunkt. Im Fels arbeitet der Imlochhammer – Schlag und Drehung zugleich.</p>
-            <div class="sl-aktionen"><a href="maschinenpark.html">Maschinenpark <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="2">In der Bohrung zeigen<span class="sr-only">: Maschinenpark</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">04</span>
-          <div>
-            <p class="sl-name">Erdwärme</p>
-            <h3>Kein Sommer, <em>kein Winter.</em></h3>
-            <p>Ab rund 15 m bleibt der Untergrund das ganze Jahr gleich warm. Die Wärmepumpe macht daraus Heizwärme und Warmwasser.</p>
-            <div class="sl-aktionen"><a href="waermepumpen.html">Erdsonde &amp; Wärmepumpe <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="3">In der Bohrung zeigen<span class="sr-only">: Erdwärme</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">05</span>
-          <div>
-            <p class="sl-name">Planung</p>
-            <h3>Jeder Meter <em>ist berechnet.</em></h3>
-            <p>Bohrtiefe und Anzahl Sonden richten sich nach Wärmebedarf und Gestein. Pro 100 m wird es rund 3 °C wärmer.</p>
-            <div class="sl-aktionen"><a href="faq.html">Fragen &amp; Antworten <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="4">In der Bohrung zeigen<span class="sr-only">: Planung</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">06</span>
-          <div>
-            <p class="sl-name">Haltung</p>
-            <h3>Sorgfalt <em>auf jedem Meter.</em></h3>
-            <p>Lotrecht bohren, alles protokollieren, den Platz sauber hinterlassen – so verstehen wir unsere Arbeit.</p>
-            <div class="sl-aktionen"><a href="philosophie.html">Unsere Philosophie <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="5">In der Bohrung zeigen<span class="sr-only">: Haltung</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">07</span>
-          <div>
-            <p class="sl-name">Erdwärmesonde</p>
-            <h3>Die Sonde <em>geht in die Tiefe.</em></h3>
-            <p>Doppel-U-Rohre mit Sondenfuss werden bis auf Endtiefe abgesenkt und vor dem Einbau auf Dichtheit geprüft.</p>
-            <div class="sl-aktionen"><a href="erdsondenbohrung.html">Erdsondenbohrung <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="6">In der Bohrung zeigen<span class="sr-only">: Erdwärmesonde</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-        <li>
-          <span class="sl-nr" aria-hidden="true">08</span>
-          <div>
-            <p class="sl-name">Hinterfüllung</p>
-            <h3>Von unten <em>nach oben verpresst.</em></h3>
-            <p>Die Hinterfüllung dichtet das Bohrloch ab und leitet die Wärme aus dem Gestein zur Sonde – über Jahrzehnte.</p>
-            <div class="sl-aktionen"><a href="referenzen.html">Referenzen <span class="ico ico-ne" aria-hidden="true"></span></a><button type="button" data-zur-station="7">In der Bohrung zeigen<span class="sr-only">: Hinterfüllung</span> <span class="ico ico-n" aria-hidden="true"></span></button></div>
-          </div>
-        </li>
-      </ol>
-    </section>
+        <div class="ed-service-links" data-reveal><a href="leistungen.html"><span>Unsere Leistungen</span><span class="ico ico-ne" aria-hidden="true"></span></a><a href="maschinenpark.html"><span>Unser Maschinenpark</span><span class="ico ico-ne" aria-hidden="true"></span></a></div>
+      </section>
+      <section class="ed-section ed-system" id="system" aria-labelledby="system-title">
+        <div class="ed-heading" data-reveal><p class="ed-kicker">02 / ERDWÄRME</p><div><h2 id="system-title">Warm im Winter.<br><em>Angenehm im Sommer.</em></h2></div></div>
+        <div class="ed-system-grid" data-reveal><div class="ed-system-drawing"><img src="assets/editorial/waermekreislauf.svg" alt="Geschlossener Kreislauf zwischen Erdsonde, Wärmepumpe und Heizung" width="640" height="480" loading="lazy"><span>SCHEMATISCHE DARSTELLUNG</span></div><div class="ed-season">
+          <div class="ed-tabs" role="tablist" aria-label="Erdwärme im Jahresverlauf"><button type="button" role="tab" id="tab-heizen" aria-controls="panel-heizen" aria-selected="true" data-season="heizen">Im Winter</button><button type="button" role="tab" id="tab-kuehlen" aria-controls="panel-kuehlen" aria-selected="false" tabindex="-1" data-season="kuehlen">Im Sommer</button></div>
+          <div role="tabpanel" id="panel-heizen" aria-labelledby="tab-heizen" tabindex="0"><h3>Wärme holen.<br>Behaglich wohnen.</h3><p>Die Erdsonde nimmt Wärme aus dem Boden auf. Die Wärmepumpe macht sie für Heizung und Warmwasser nutzbar.</p></div>
+          <div role="tabpanel" id="panel-kuehlen" aria-labelledby="tab-kuehlen" tabindex="0"><h3>Wärme abgeben.<br>Angenehm bleiben.</h3><p>Bei passender Auslegung kann das System im Sommer Wärme aus dem Gebäude an den kühleren Untergrund abgeben.</p></div>
+          <a class="ed-text-link" href="waermepumpen.html">Mehr erfahren <span class="ico ico-ne" aria-hidden="true"></span></a>
+        </div></div>
+      </section>
+      <section class="ed-section ed-process" id="ablauf" aria-labelledby="ablauf-title">
+        <div class="ed-heading" data-reveal><p class="ed-kicker">03 / ABLAUF</p><div><h2 id="ablauf-title">Gut vorbereitet.<br><em>Meter für Meter.</em></h2></div></div>
+        <div class="ed-process-grid"><div class="ed-process-aside" data-reveal><img src="assets/editorial/bohrplatz.svg" alt="Schematische Aufsicht auf Bohrpunkt, Gebäude und Zufahrt" width="640" height="480" loading="lazy"><a class="ed-text-link" href="erdsondenbohrung.html">Den Ablauf kennenlernen <span class="ico ico-ne" aria-hidden="true"></span></a></div>
+          <ol class="ed-process-short"><li><span>01</span><h3>Standort abklären</h3></li><li><span>02</span><h3>Planung &amp; Bewilligung</h3></li><li><span>03</span><h3>Bohrung ausführen</h3></li><li><span>04</span><h3>Sonde einbauen &amp; hinterfüllen</h3></li><li><span>05</span><h3>Leitungen anbinden</h3></li><li><span>06</span><h3>Anlage in Betrieb nehmen</h3></li></ol>
+        </div>
+      </section>
+      <section class="ed-section ed-about" id="unternehmen" aria-labelledby="about-title">
+        <div class="ed-about-mark" aria-hidden="true"><svg viewBox="0 0 400 400"><g fill="none" stroke="currentColor" stroke-width="1"><path d="M-20 310C110 120 150 440 420 125M-20 280C110 90 150 410 420 95M-20 250C110 60 150 380 420 65M-20 220C110 30 150 350 420 35M-20 190C110 0 150 320 420 5M-20 160C110-30 150 290 420-25M-20 340C110 150 150 470 420 155M-20 370C110 180 150 500 420 185"/></g><path d="M125 117h150M200 117v168" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="200" cy="285" r="5" fill="currentColor"/></svg><span>THERMOBOHR AG</span></div>
+        <div class="ed-about-copy" data-reveal><p class="ed-kicker">04 / THERMOBOHR</p><h2 id="about-title">Mit Sorgfalt.<br><em>Für die Wärme von morgen.</em></h2><p>Sorgfältige Vorbereitung, klare Absprachen und saubere Ausführung. Unser Anspruch an Erdwärme.</p><a class="ed-text-link" href="ueber-uns.html">Über uns <span class="ico ico-ne" aria-hidden="true"></span></a></div>
+      </section>
+    </div>
 
-    <section class="papier" id="leistungen" aria-labelledby="leistungen-titel">
-      <div class="abschnitt-kopf">
-        <div>
-          <p class="eyebrow">01 / LEISTUNGEN</p>
-          <h2 id="leistungen-titel">Alles aus einer Hand.<br><em>Von der Abklärung bis zur Wärme.</em></h2>
-        </div>
-        <p class="abschnitt-intro">Thermobohr begleitet Ihr Erdsondenprojekt vom ersten Gespräch bis zur betriebsbereiten Sonde.</p>
-      </div>
-      <div class="karten">
-        <a class="karte" href="erdsondenbohrung.html">
-          <figure class="bild"><figcaption>Bild folgt · Bohrung im Einsatz</figcaption></figure>
-          <span class="karte-nr">01</span>
-          <h3>Erdsondenbohrung</h3>
-          <p>Bohren, Sonde einbauen, verpressen – sauber ausgeführt und dokumentiert.</p>
-          <span class="pfeil ico ico-ne" aria-hidden="true"></span>
-        </a>
-        <a class="karte" href="waermepumpen.html">
-          <figure class="bild"><figcaption>Bild folgt · Wärmepumpe im Haus</figcaption></figure>
-          <span class="karte-nr">02</span>
-          <h3>Erdsonde &amp; Wärmepumpe</h3>
-          <p>Wie Erdsonde und Wärmepumpe zusammen Ihr Gebäude heizen.</p>
-          <span class="pfeil ico ico-ne" aria-hidden="true"></span>
-        </a>
-        <a class="karte" href="maschinenpark.html">
-          <figure class="bild rig"><canvas class="rig-linien" role="img" aria-label="Rotomax-Bohrgerät als drehende 3D-Liniengrafik"></canvas><figcaption>Rotomax · 3D-Linien</figcaption></figure>
-          <span class="karte-nr">03</span>
-          <h3>Maschinenpark</h3>
-          <p>Das Rotomax-Raupenbohrgerät und die Technik dahinter.</p>
-          <span class="pfeil ico ico-ne" aria-hidden="true"></span>
-        </a>
-        <a class="karte" href="leistungen.html">
-          <figure class="bild"><figcaption>Bild folgt · Beratung vor Ort</figcaption></figure>
-          <span class="karte-nr">04</span>
-          <h3>Beratung &amp; Bewilligung</h3>
-          <p>Standortabklärung, Auslegung und Gesuch beim Kanton.</p>
-          <span class="pfeil ico ico-ne" aria-hidden="true"></span>
-        </a>
-      </div>
-    </section>
-
-    <section class="dunkel" id="ablauf" aria-labelledby="ablauf-titel">
-      <div class="ablauf-raster">
-        <div class="ablauf-kopf">
-          <p class="eyebrow">02 / ABLAUF</p>
-          <h2 id="ablauf-titel">In sechs Schritten<br><em>zur Erdwärme.</em></h2>
-          <figure class="bild hoch"><figcaption>Bild folgt · Bohrplatz von oben</figcaption></figure>
-        </div>
-        <ol class="schritte">
-          <li><span class="num">01</span><div><h3>Standortabklärung</h3><p>Geologie, Grundwasserschutzzonen und Platzverhältnisse vor Ort prüfen.</p></div></li>
-          <li><span class="num">02</span><div><h3>Bewilligung</h3><p>Das Gesuch für die Erdwärmenutzung beim Kanton vorbereiten und einreichen.</p></div></li>
-          <li><span class="num">03</span><div><h3>Bohrung</h3><p>Mit Schutzverrohrung durch das Lockergestein, mit dem Imlochhammer durch den Fels.</p></div></li>
-          <li><span class="num">04</span><div><h3>Sonde &amp; Hinterfüllung</h3><p>Doppel-U-Sonde einbauen, Druckprobe, Bohrloch von unten nach oben verpressen.</p></div></li>
-          <li><span class="num">05</span><div><h3>Anbindung</h3><p>Leitungen von der Sonde bis ins Gebäude zur Wärmepumpe.</p></div></li>
-          <li><span class="num">06</span><div><h3>Inbetriebnahme</h3><p>Füllen, entlüften, übergeben – die Wärmepumpe läuft.</p></div></li>
-        </ol>
-      </div>
-    </section>
-
-    <section class="papier" id="einblicke" aria-labelledby="einblicke-titel">
-      <div class="abschnitt-kopf">
-        <div>
-          <p class="eyebrow">03 / EINBLICKE</p>
-          <h2 id="einblicke-titel">Ein Blick<br><em>auf die Baustelle.</em></h2>
-        </div>
-        <p class="abschnitt-intro">Platz für Fotos aus Ihren Projekten: Bohrplatz, Technik im Detail und das Team bei der Arbeit.</p>
-      </div>
-      <div class="galerie">
-        <figure class="bild g-gross"><figcaption>Bild folgt · Bohrplatz mit Rotomax</figcaption></figure>
-        <figure class="bild"><figcaption>Bild folgt · Bohrkrone im Detail</figcaption></figure>
-        <figure class="bild"><figcaption>Bild folgt · Sondeneinbau</figcaption></figure>
-        <figure class="bild g-breit"><figcaption>Bild folgt · Platz nach der Bohrung</figcaption></figure>
-      </div>
-    </section>
-
-    <section class="papier papier-hell" id="referenzen" aria-labelledby="referenzen-titel">
-      <div class="abschnitt-kopf">
-        <div>
-          <p class="eyebrow">04 / REFERENZEN</p>
-          <h2 id="referenzen-titel">Projekte,<br><em>die Wärme liefern.</em></h2>
-        </div>
-        <a class="text-link" href="referenzen.html">Alle Referenzen <span class="ico ico-ne" aria-hidden="true"></span></a>
-      </div>
-      <div class="karten karten-3">
-        <article class="karte referenz">
-          <figure class="bild"><figcaption>Bild folgt · Referenzprojekt</figcaption></figure>
-          <h3>Projekt folgt</h3>
-          <p class="meta">[Ort] · [Anzahl] Sonden · [Tiefe] m</p>
-        </article>
-        <article class="karte referenz">
-          <figure class="bild"><figcaption>Bild folgt · Referenzprojekt</figcaption></figure>
-          <h3>Projekt folgt</h3>
-          <p class="meta">[Ort] · [Anzahl] Sonden · [Tiefe] m</p>
-        </article>
-        <article class="karte referenz">
-          <figure class="bild"><figcaption>Bild folgt · Referenzprojekt</figcaption></figure>
-          <h3>Projekt folgt</h3>
-          <p class="meta">[Ort] · [Anzahl] Sonden · [Tiefe] m</p>
-        </article>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-cta">
-      <div>
-        <p>PROJEKT PLANEN</p>
-        <h2>Planen Sie eine Erdwärmesonde?<br><em>Wir beraten Sie gerne.</em></h2>
-      </div>
-      <a href="kontakt.html">Projekt anfragen <span class="ico ico-ne" aria-hidden="true"></span></a>
-    </div>
-    <div class="footer-main">
-      <div class="footer-firma">
-        <img src="assets/Logo.jpg" alt="Thermobohr AG" width="256" height="85">
-        <p>[Strasse / Hausnummer]<br>[PLZ / Ort]<br>[Telefonnummer ergänzen]<br>[E-Mail-Adresse ergänzen]</p>
-      </div>
-      <div class="footer-spalte">
-        <p>LEISTUNGEN</p>
-        <a href="erdsondenbohrung.html">Erdsondenbohrung</a>
-        <a href="waermepumpen.html">Erdsonde &amp; Wärmepumpe</a>
-        <a href="maschinenpark.html">Maschinenpark</a>
-      </div>
-      <div class="footer-spalte">
-        <p>UNTERNEHMEN</p>
-        <a href="ueber-uns.html">Über uns</a>
-        <a href="philosophie.html">Philosophie</a>
-        <a href="referenzen.html">Referenzen</a>
-        <a href="faq.html">Fragen &amp; Antworten</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© 2026 Thermobohr AG · Entwurf</span>
-      <div><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a><a href="#start">Nach oben <span class="ico ico-n" aria-hidden="true"></span></a></div>
-    </div>
+    <div class="footer-cta"><div><p>WÄRME BEGINNT MIT EINEM GESPRÄCH</p><h2>Was liegt unter<br><em>Ihrem Vorhaben?</em></h2></div><a href="kontakt.html">Projekt besprechen <span class="ico ico-ne" aria-hidden="true"></span></a></div>
+    <div class="footer-main"><div class="footer-company"><a class="footer-brand" href="index.html"><img src="assets/Logo-hell.png" alt="Thermobohr AG" width="1024" height="146"></a><p>Erdsondenbohrungen.<br>Energie aus der Tiefe.</p></div>
+      <div class="footer-column"><p>LEISTUNGEN</p><a href="leistungen.html">Übersicht</a><a href="erdsondenbohrung.html">Erdsondenbohrung</a><a href="waermepumpen.html">Erdsonde &amp; Wärmepumpe</a><a href="maschinenpark.html">Maschinenpark</a></div>
+      <div class="footer-column"><p>THERMOBOHR</p><a href="ueber-uns.html">Über uns</a><a href="philosophie.html">Unsere Philosophie</a><a href="referenzen.html">Referenzen</a><a href="kontakt.html">Kontakt</a></div>
+      <div class="footer-column"><p>GUT ZU WISSEN</p><a href="faq.html">Fragen &amp; Antworten</a><a href="kontakt.html#anfrage">Anfrage vorbereiten</a><a href="index.html#ablauf">Ihr Projektablauf</a></div>
+    </div><div class="footer-bottom"><span>© 2026 Thermobohr AG</span><span class="draft-flag">Website-Entwurf · Firmendaten noch zu ergänzen</span><div><a href="impressum.html">Impressum</a><a href="datenschutz.html">Datenschutz</a></div></div>
   </footer>
 
   <span class="sr-only" id="view-status" role="status" aria-live="polite"></span>

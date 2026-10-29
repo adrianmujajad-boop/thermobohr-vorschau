@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Erdwärme aus einem geschlossenen Sondenkreislauf</title>
+  <desc id="desc">Schematischer Erdschnitt mit einem Haus, einer Wärmepumpe und den zwei Rohrschlaufen einer Doppel-U-Sonde. Die Zeichnung zeigt das Prinzip ohne Tiefen- oder Leistungsangaben.</desc>
+  <defs>
+    <pattern id="earth" width="15" height="15" patternUnits="userSpaceOnUse" patternTransform="rotate(24)"><path d="M0 0v5" stroke="#153d2b" stroke-opacity=".12"/></pattern>
+    <marker id="a" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="m2 1 3 3-3 3" stroke="#1d5c2e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <path fill="#e9eee4" d="M0 0h640v480H0z"/>
+  <g stroke="#153d2b" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 40h35M32 40v17M608 40h-35M608 40v17M32 440h35M32 440v-17M608 440h-35M608 440v-17" opacity=".25"/>
+    <path d="M58 223h524v185H58z" fill="#dce4d4" stroke="none"/>
+    <path d="M58 255c70-8 94 8 146 3s90-1 141 2 121-7 237-2v150H58Z" fill="url(#earth)" stroke="none"/>
+    <path d="M58 222h524" stroke-width="1.5"/>
+    <path d="M58 257c70-8 94 8 146 3s90-1 141 2 121-7 237-2M58 306c76 8 130-9 184-2s87 10 150 2 127-8 190 0M58 352c54-5 80 7 139 0s89-3 142 2 162-8 243 1M58 399c94-6 126 10 190 1s125-4 168 1 104-5 166-2" opacity=".23"/>
+    <path d="m389 146 78-58 79 58M402 137v85h131v-85M411 144l56-41 57 41M420 222v-50h34v50M477 153h31v29h-31zM492 153v29M477 168h31" stroke-width="1.4"/>
+    <path d="M479 196h30v26h-30zM484 202h20M488 213h12" stroke="#1d5c2e" stroke-width="1.3"/>
+    <path d="M203 237h67v161h-67z" fill="#f3f4ed" stroke="#153d2b" stroke-opacity=".2"/>
+    <path d="M211 237v146a7 7 0 0 0 14 0V237M247 237v146a7 7 0 0 0 14 0V237" stroke="#6aaa3a" stroke-width="3"/>
+    <path d="M211 237v-11h36v11M225 237v-3h36v3M211 226v-13h250v-7h18M261 234h203v-18h15" stroke="#6aaa3a" stroke-width="2.2"/>
+    <path d="M225 350v-66M261 350v-66M365 234h40" stroke="#1d5c2e" stroke-width="1.2" marker-end="url(#a)"/>
+    <path d="M162 281h27m-5-4 5 4-5 4M162 325h27m-5-4 5 4-5 4M290 281h-13m5-4-5 4 5 4M290 325h-13m5-4-5 4 5 4" stroke="#b29352" stroke-width="1.4"/>
+    <path d="M73 120h85l45 103M327 323h-39l-18 22M556 290h-66l-23-60" stroke-width=".9" opacity=".5"/>
+    <circle cx="203" cy="223" r="2.5" fill="#1d5c2e" stroke="none"/><circle cx="270" cy="345" r="2.5" fill="#1d5c2e" stroke="none"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#153d2b">
+    <text x="58" y="71" font-size="10" letter-spacing="2">01 / DIE WÄRMEQUELLE</text>
+    <text x="73" y="111" font-size="12">Geschlossener Kreislauf</text>
+    <text x="327" y="316" font-size="13">Doppel-U-Sonde</text>
+    <text x="327" y="339" font-size="11" fill="#607563">Wärmeaufnahme im Untergrund</text>
+    <text x="490" y="279" font-size="11">Anbindung</text>
+    <text x="58" y="431" font-size="10" fill="#607563">PRINZIPDARSTELLUNG</text>
+    <text x="582" y="431" text-anchor="end" font-size="10" fill="#607563">Nicht massstäblich</text>
+  </g>
+</svg>

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Das Zusammenspiel von Erdsonde, Wärmepumpe und Gebäude</title>
+  <desc id="desc">Drei klar getrennte Bereiche zeigen die Wärmequelle im Boden, die Wärmepumpe mit elektrischer Antriebsenergie sowie die Wärmeverteilung im Haus. Getrennte Leitungen stellen Quellen- und Heizkreislauf dar.</desc>
+  <defs>
+    <marker id="green" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="m2 1 3 3-3 3" stroke="#1d5c2e" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></marker>
+    <marker id="gold" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto"><path d="m2 1 3 3-3 3" stroke="#b29352" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  </defs>
+  <path fill="#e9eee4" d="M0 0h640v480H0z"/>
+  <g stroke="#153d2b" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 40h35M32 40v17M608 40h-35M608 40v17M32 440h35M32 440v-17M608 440h-35M608 440v-17" opacity=".25"/>
+    <path d="M216 140v211M420 140v211" stroke-dasharray="2 6" opacity=".18"/>
+    <path d="M58 224h129v108H58z" fill="#dce4d4" stroke="none"/>
+    <path d="M58 224h129M58 249c40-7 83 6 129 0M58 276c50 7 84-6 129 1M58 305c55-6 83 5 129 0M58 332h129" opacity=".3"/>
+    <path d="M101 224v78a11 11 0 0 0 22 0v-78M144 224v78a11 11 0 0 0 22 0v-78" stroke="#6aaa3a" stroke-width="2.5"/>
+    <path d="M101 224v-20h43v20M123 224v-9h43v9M144 204h131v31M166 215h87v51h22" stroke="#6aaa3a" stroke-width="2.2"/>
+    <path d="M195 204h29M226 266h-26" stroke="#1d5c2e" stroke-width="1.3" marker-end="url(#green)"/>
+    <path d="M275 186h94v129h-94z" fill="#f3f4ed" stroke-width="1.4"/>
+    <path d="m275 186 12-10h94v129l-12 10M369 186l12-10" stroke-width="1.1" opacity=".55"/>
+    <path d="M287 201h51v12h-51zM345 201h11v12h-11z" stroke-width="1.1"/>
+    <circle cx="322" cy="258" r="22" stroke="#1d5c2e" stroke-width="1.3"/>
+    <path d="m307 258 9-10 12 20 10-10M287 295h68M287 301h68" stroke="#1d5c2e" stroke-width="1.1"/>
+    <path d="M317 143v32M309 161l8 8 8-8" stroke="#153d2b" stroke-width="1.3"/>
+    <path d="m445 181 70-54 70 54M456 174v158h118V174M466 182l49-38 49 38M470 197h27v30h-27zM484 197v30M470 212h27" stroke-width="1.4"/>
+    <path d="M369 235h88v11h101v61H458v-41h-89" stroke="#b29352" stroke-width="2.2"/>
+    <path d="M471 246v48h13v-48h13v48h13v-48h13v48h13v-48h13v48h9" stroke="#b29352" stroke-width="1.4"/>
+    <path d="M395 235h28M421 266h-28" stroke="#b29352" stroke-width="1.4" marker-end="url(#gold)"/>
+    <path d="M73 350h99M273 350h98M466 350h99" opacity=".25"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#153d2b">
+    <text x="58" y="71" font-size="10" letter-spacing="2">02 / WÄRME WEITERDENKEN</text>
+    <text x="317" y="126" text-anchor="middle" font-size="11" fill="#607563">Elektrische Energie</text>
+    <text x="122" y="378" text-anchor="middle" font-size="15">Erdsonde</text>
+    <text x="322" y="378" text-anchor="middle" font-size="15">Wärmepumpe</text>
+    <text x="516" y="378" text-anchor="middle" font-size="15">Gebäude</text>
+    <text x="122" y="400" text-anchor="middle" font-size="11" fill="#607563">Wärme aufnehmen</text>
+    <text x="322" y="400" text-anchor="middle" font-size="11" fill="#607563">Temperatur anheben</text>
+    <text x="516" y="400" text-anchor="middle" font-size="11" fill="#607563">Wärme verteilen</text>
+    <text x="58" y="431" font-size="10" fill="#607563">GETRENNTE KREISLÄUFE</text>
+    <text x="582" y="431" text-anchor="end" font-size="10" fill="#607563">Schematische Darstellung</text>
+  </g>
+</svg>
