@@ -519,8 +519,8 @@ export function createRig(THREE, { colorMode = 'original' } = {}) {
       ctx.clearRect(0,0,1024,160);
       if(mode==='original'){
         ctx.fillStyle='#f2eee4';
-        ctx.font='italic 800 93px Arial, sans-serif';ctx.fillText('ROTOMAX',6,108);
-        ctx.font='500 44px Arial, sans-serif';ctx.fillText('XL GTi',620,107);
+        ctx.font='italic 800 93px Arial, sans-serif';ctx.fillText('BOHRTECHNIK',6,108);
+        ctx.font='500 44px Arial, sans-serif';ctx.fillText('',620,107);
       }else{
         // Firmenschrift wie im Logo: «Thermobohr» hell auf dunklem Lack, «AG» hellgruen.
         ctx.fillStyle='#eef3ea';ctx.font='300 92px "Helvetica Neue", Arial, sans-serif';

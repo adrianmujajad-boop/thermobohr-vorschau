@@ -43,7 +43,8 @@ function start() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.shadowMap.autoUpdate = false;
-  const quality = { ratio: Math.min(devicePixelRatio, tief ? 1.25 : 1.5) };
+  // Handy: so scharf wie die Linien der Website (bis zweifach), und nie unter 1,5-fach.
+  const quality = { ratio: Math.min(devicePixelRatio, tief ? 2 : 1.5), min: tief ? 1.5 : 1 };
   renderer.setPixelRatio(quality.ratio);
 
   const scene = new THREE.Scene();
@@ -240,7 +241,12 @@ function start() {
     scene.traverse(o => { if (o.isMesh) ndList.push({ o, eigen: eigen.has(o), m: null, v: true }); });
   }
   const keep = new THREE.Color();
+  // Auf dem Handy braucht es das Normalenbild nur für die kurze Blende beim Eintauchen
+  // (dort gibt es weder Umgebungsverdeckung noch feine Kanten).
+  let ndNoetig = true;
   function renderND(r) {
+    kanten.uniforms.uND.value = ndNoetig ? 1 : 0;
+    if (!ndNoetig) return;
     if (!ndList.length) collectND();
     for (const e of ndList) {
       const o = e.o, m = o.material; e.m = m; e.v = o.visible;
@@ -259,7 +265,7 @@ function start() {
   }
 
   // -------------------------------------------------------- Nachbearbeitung
-  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: tief ? 2 : 4 }));
   composer.addPass(new RenderPass(scene, camera));
   composer.addPass(new FnPass(renderND));
   const gtao = new GTAOPass(scene, camera, 1, 1);
@@ -274,17 +280,17 @@ function start() {
   composer.addPass(new OutputPass());
   // Kanten der Baustellenteile in den Linienfarben der Website; die Bühne bleibt durchsichtig.
   const kanten = new ShaderPass({
-    uniforms: { tDiffuse: { value: null }, tND: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uBlock: { value: new THREE.Vector3(130 / 255, 185 / 255, 140 / 255) }, uKraft: { value: .7 }, uOben: { value: 1 } },
+    uniforms: { tDiffuse: { value: null }, tND: { value: null }, uRes: { value: new THREE.Vector2(1, 1) }, uBlock: { value: new THREE.Vector3(130 / 255, 185 / 255, 140 / 255) }, uKraft: { value: tief ? 0 : .7 }, uOben: { value: 1 }, uND: { value: 1 } },
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
     fragmentShader: `
-      uniform sampler2D tDiffuse, tND; uniform vec2 uRes; uniform vec3 uBlock; uniform float uKraft, uOben;
+      uniform sampler2D tDiffuse, tND; uniform vec2 uRes; uniform vec3 uBlock; uniform float uKraft, uOben, uND;
       varying vec2 vUv;
       void main(){
         vec4 echt = texture2D(tDiffuse, vUv);
         vec2 px = 1.0 / uRes;
-        vec4 c = texture2D(tND, vUv);
+        vec4 c = uND > .5 ? texture2D(tND, vUv) : vec4(0.0);
         float e = 0.0;
-        if (c.a > 0.0) {                       // nur Baustellenteile (Gerät und Bohrung: negativ)
+        if (c.a > 0.0 && uKraft > 0.0) {       // nur Baustellenteile (Gerät und Bohrung: negativ)
           float z = c.a; vec3 nc = c.rgb * 2.0 - 1.0; float sil = 0.0, knick = 0.0;
           for (int i = 0; i < 4; i++) {
             vec2 o = i == 0 ? vec2(px.x, 0.0) : i == 1 ? vec2(-px.x, 0.0) : i == 2 ? vec2(0.0, px.y) : vec2(0.0, -px.y);
@@ -318,7 +324,8 @@ function start() {
     renderer.setSize(W, H, false); composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(W, H);
     const pw = W * renderer.getPixelRatio(), ph = H * renderer.getPixelRatio();
     gtao.setSize(Math.round(pw * .5), Math.round(ph * .5));
-    ndTarget.setSize(pw, ph); kanten.uniforms.uRes.value.set(pw, ph);
+    const nd = tief ? .5 : 1;   // Handy: nur Blende, halbe Auflösung genügt
+    ndTarget.setSize(pw * nd, ph * nd); kanten.uniforms.uRes.value.set(pw * nd, ph * nd);
     camera.aspect = W / H;
   }
   // Kamera aus kombi.js übernehmen: Standort, Blick auf (0, lookY, 0), Bildmitte (cx, cy) in CSS-Pixeln.
@@ -328,15 +335,15 @@ function start() {
     camera.setViewOffset(W, H, W / 2 - K.cx, H / 2 - K.cy, W, H);
   }
 
-  // Qualität: bei langsamen Bildern zuerst die Auflösung, dann die Umgebungsverdeckung zurücknehmen.
+  // Qualität: bei langsamen Bildern zuerst die Auflösung (Handy nie unter 1,5-fach), dann die Umgebungsverdeckung zurücknehmen.
   const perf = { n: 0, sum: 0, stufe: 0 };
   function anpassen(ms) {
     if (perf.stufe > 1) return;
     perf.n++; perf.sum += ms;
     if (perf.n < 60) return;
     const mittel = perf.sum / perf.n; perf.n = perf.sum = 0;
-    if (mittel < 22) { perf.stufe = 2; return; }
-    if (perf.stufe === 0 && quality.ratio > 1) { quality.ratio = 1; renderer.setPixelRatio(1); W = H = 0; groesse(); perf.stufe = 1; }
+    if (mittel < (tief ? 30 : 22)) { perf.stufe = 2; return; }
+    if (perf.stufe === 0 && quality.ratio > quality.min) { quality.ratio = quality.min; renderer.setPixelRatio(quality.ratio); W = H = 0; groesse(); perf.stufe = 1; }
     else { gtao.enabled = false; perf.stufe = 2; }
   }
 
@@ -354,6 +361,7 @@ function start() {
     const obenSicht = smooth(range(K.py, .4, 9));
     oben.visible = obenSicht > .002;
     kanten.uniforms.uOben.value = obenSicht;
+    ndNoetig = !tief || (obenSicht > .002 && obenSicht < .998);
     for (const m of obenDurchsichtig) m.opacity = m.userData.basisDeckung * obenSicht;
     const unter = smooth(range(-K.py, -2, 6));
     lampe.intensity = unter * 90;
@@ -362,7 +370,7 @@ function start() {
     const einstieg = ein && ein.active ? 1 - smooth(range(ein.cameraMix || 0, .35, .72)) : 0;
     setzeUnten(z, p, spin, ende, einstieg);
     site.update(zeit);
-    if (bild++ % 6 === 0) renderer.shadowMap.needsUpdate = true;
+    if (bild++ % (tief ? 30 : 6) === 0) renderer.shadowMap.needsUpdate = true;   // Handy: Schatten seltener
     composer.render();
     anpassen(performance.now() - t0);
   }

@@ -1620,9 +1620,9 @@ function bohrkopfAlternative(a, yb, phase, yHammer) {
   function zuruecksetzen() { autoStopp(); NUTZER.yaw = 0; NUTZER.pitch = 0; NUTZER.zoom = 1; }
 
   const ANSICHT_TEXT = {
-    '3d': ['RÄUMLICHE LINIENSTUDIE', 'Ziehen, um die Maschine zu drehen', 'Aus eurer Rotomax-Bildvorlage räumlich nachempfunden. Die Bohrspindel steht genau über der Bohrung.', 'FORMSTUDIE · NICHT MASSSTÄBLICH'],
+    '3d': ['RÄUMLICHE LINIENSTUDIE', 'Ziehen, um die Maschine zu drehen', 'Aus der bereitgestellten Bildvorlage räumlich nachempfunden. Die Bohrspindel steht genau über der Bohrung.', 'FORMSTUDIE · NICHT MASSSTÄBLICH'],
     'contour': ['KONTUREN DER BILDVORLAGE', 'Direkt aus dem Originalbild vektorisiert', 'Originalgetreue 2D-Konturen in den Grüntönen des Logos.', 'VEKTORGRAFIK · SVG'],
-    'photo': ['DAS ORIGINALFOTO', 'Die tatsächliche Maschine als Ausgangspunkt', 'Eure unveränderte Datei: Volragen / Bohrer Rotomax.webp', 'ORIGINAL · ROTOMAX'],
+    'photo': ['DAS ORIGINALFOTO', 'Die tatsächliche Maschine als Ausgangspunkt', 'Bereitgestellte Geräteaufnahme', 'ORIGINAL · GERÄTEFOTO'],
   };
   function ansichtWaehlen(modus) {
     autoStopp();

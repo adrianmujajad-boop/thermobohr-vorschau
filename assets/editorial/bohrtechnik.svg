@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Schematisches Raupenbohrgerät</title>
+  <desc id="desc">Eine neutrale technische Illustration zeigt die grundlegenden Baugruppen eines Raupenbohrgeräts: Fahrwerk, Maschinenkörper, Bohrmast und Gestänge. Sie stellt kein bestimmtes Fabrikat dar.</desc>
+  <defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><path d="M0 0v8" stroke="#153d2b" stroke-opacity=".13"/></pattern></defs>
+  <path fill="#e9eee4" d="M0 0h640v480H0z"/>
+  <g stroke="#153d2b" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 40h35M32 40v17M608 40h-35M608 40v17M32 440h35M32 440v-17M608 440h-35M608 440v-17" opacity=".25"/>
+    <path d="M58 380h524M58 388h524" opacity=".28"/>
+    <path d="M73 389h494v18H73z" fill="url(#hatch)" stroke="none"/>
+    <path d="M375 104h29v222h-29z" fill="#dce4d4" stroke-width="1.5"/>
+    <path d="M381 112h17v206h-17zM389 112v206" opacity=".45"/>
+    <path d="M405 124h14v241M397 141h22M397 164h22M397 187h22M397 210h22M397 233h22M397 256h22M397 279h22M397 302h22" stroke="#6aaa3a" stroke-width="1.6"/>
+    <path d="M399 193h30v41h-30z" fill="#e9eee4" stroke-width="1.5"/>
+    <path d="M429 204h8v20h-8M413 234v134M410 368h7v12h-7" stroke="#1d5c2e" stroke-width="2"/>
+    <path d="M176 292h164v47H176z" fill="#dce4d4" stroke-width="1.5"/>
+    <path d="M187 303h55v24h-55zM250 303h9v24h-9M268 303h9v24h-9M286 303h9v24h-9M304 303h9v24h-9" opacity=".45"/>
+    <path d="M340 304h35v35h-35zM354 304l21-20M326 292l49-88" stroke-width="1.5"/>
+    <path d="M198 339h160a20 20 0 0 1 0 40H198a20 20 0 0 1 0-40Z" fill="#e9eee4" stroke-width="1.5"/>
+    <path d="M198 345h160a14 14 0 0 1 0 28H198a14 14 0 0 1 0-28Z" opacity=".45"/>
+    <circle cx="202" cy="359" r="10"/><circle cx="238" cy="359" r="10"/><circle cx="274" cy="359" r="10"/><circle cx="310" cy="359" r="10"/><circle cx="354" cy="359" r="10"/>
+    <path d="M187 340v8m14-9v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7m14-7v7M187 370v8m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7m14-6v7" opacity=".35"/>
+    <path d="M367 330v46M356 376h23M176 327h-12v49M153 376h23" stroke-width="1.4"/>
+    <path d="M340 305c4-17 4-34 14-40s24-5 37-7" stroke="#1d5c2e" stroke-width="2"/>
+    <path d="M448 138h37l20-20M446 292h35l24 21M145 233h37l25 49" stroke-width=".8" opacity=".5"/>
+    <circle cx="448" cy="138" r="2" fill="#1d5c2e" stroke="none"/><circle cx="446" cy="292" r="2" fill="#1d5c2e" stroke="none"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#153d2b">
+    <text x="58" y="71" font-size="10" letter-spacing="2">BOHRTECHNIK / GERÄTEPRINZIP</text>
+    <text x="508" y="114" font-size="11">Bohrmast</text>
+    <text x="508" y="328" font-size="11">Gestänge</text>
+    <text x="90" y="227" font-size="11">Versorgung</text>
+    <text x="58" y="431" font-size="10" fill="#607563">RAUPENBOHRGERÄT</text>
+    <text x="582" y="431" text-anchor="end" font-size="10" fill="#607563">Schematische Darstellung</text>
+  </g>
+</svg>

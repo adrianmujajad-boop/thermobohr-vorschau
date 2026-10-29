@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Versorgung und Nebenanlagen am Bohrplatz</title>
+  <desc id="desc">Schematische Zusatzaggregate, Schlauchführungen und ein Sammelbehälter veranschaulichen die Versorgung eines Bohrplatzes. Die Zeichnung zeigt kein Fabrikat und keine konkrete Baustelleninstallation.</desc>
+  <path fill="#e9eee4" d="M0 0h640v480H0z"/>
+  <g stroke="#153d2b" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 40h35M32 40v17M608 40h-35M608 40v17M32 440h35M32 440v-17M608 440v-17M608 440h-35" opacity=".25"/>
+    <path d="M58 357h524M58 365h524" opacity=".2"/>
+    <path d="M98 211h161v112H98z" fill="#dce4d4" stroke-width="1.5"/>
+    <path d="m98 211 14-16h161v112l-14 16M259 211l14-16" stroke-width="1.2"/>
+    <path d="M112 228h49v32h-49zM171 228h70v14h-70zM171 250h70M171 258h70M171 266h70M171 274h70M171 282h70M171 290h70M171 298h70" opacity=".5"/>
+    <circle cx="125" cy="245" r="6" stroke-width="1.1"/><path d="m125 245 3-3M112 275h35M112 282h35M112 289h35" opacity=".6"/>
+    <path d="M119 323v19h22v-19M220 323v19h22v-19M109 342h42M210 342h42" stroke-width="1.4"/>
+    <path d="M347 224h110v99H347z" fill="#f3f4ed" stroke-width="1.4"/>
+    <path d="m347 224 17-14h110v99l-17 14M457 224l17-14M357 236h90M357 312h90" opacity=".5"/>
+    <path d="M363 238v59M374 238v59M385 238v59M396 238v59M407 238v59M418 238v59M429 238v59M440 238v59" opacity=".2"/>
+    <path d="M344 323h116v18H344zM353 341v9M452 341v9" stroke-width="1.2"/>
+    <path d="M259 279h26c37 0 29 52 66 52h19M259 291h20c27 0 22 53 58 53h48" stroke="#6aaa3a" stroke-width="2.5"/>
+    <path d="M457 281h25c30 0 27 49 59 49h32M457 292h19c23 0 25 51 51 51h46" stroke="#1d5c2e" stroke-width="2"/>
+    <path d="M573 322v29M569 326h8v21h-8" stroke-width="1.2"/>
+    <path d="M305 156h62l35 54M140 150v45M414 384h66l45-40" opacity=".5" stroke-width=".8"/>
+    <circle cx="402" cy="210" r="2" fill="#1d5c2e" stroke="none"/><circle cx="525" cy="344" r="2" fill="#1d5c2e" stroke="none"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#153d2b">
+    <text x="58" y="71" font-size="10" letter-spacing="2">VERSORGUNG / AM BOHRPLATZ</text>
+    <text x="98" y="139" font-size="12">Zusatzaggregat</text>
+    <text x="304" y="147" font-size="12">Sammelbehälter</text>
+    <text x="414" y="401" font-size="12">Schlauchführung</text>
+    <text x="58" y="431" font-size="10" fill="#607563">TECHNIK ALS ZUSAMMENHÄNGENDER EINSATZ</text>
+    <text x="582" y="431" text-anchor="end" font-size="10" fill="#607563">Schematische Darstellung</text>
+  </g>
+</svg>
